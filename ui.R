@@ -131,11 +131,11 @@ ui <- fluidPage(
   
   # Bottom Section: Summary Statistics
   fluidRow(
-    style = "margin-top: 15px; margin-bottom: 15px;",
+    style = "margin-top: 15px; margin-bottom: 15px; padding: 0px;",
     column(5, 
-           div(style = "height: 300px; border: 1px double black; margin: 0;")),
+           div(style = "height: 300px; border: 1px double black; margin-right: -16px;")),
     column(7, 
-           div(style = "height: 300px; border: 1px double black; margin: 0;")
+           div(style = "height: 300px; border: 1px double black; margin: 1px;")
     )
   )
 )
