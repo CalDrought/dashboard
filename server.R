@@ -16,6 +16,7 @@ library(janitor)
 library(shinyjs)
 library(dplyr)
 library(tools)
+library(bslib)
 
 source("data_cleaning.R") # Load in data once.
 
@@ -23,6 +24,7 @@ source("data_cleaning.R") # Load in data once.
 source_name <- water_data$source_name
 
 server <- function(input, output, session) {
+  
   
   #-----------------------------------------
   # Toggle Button Logic for Facility Type and Shortage Year Headers
@@ -77,18 +79,6 @@ server <- function(input, output, session) {
   
   st_crs(district_shape)
   
-  # Merge supplier names
-  supplier_data <- read_csv(here("clean_names", "supplier_table.csv"))
-  
-  # Join shortage levels to district shapes
-  districts_with_data <- district_shape |>
-    inner_join(water_data$actual_shortage, by = c("water_syst" = "pwsid")) |>
-    filter(end_date == max(end_date, na.rm = TRUE)) |>
-    left_join(supplier_data, by = "org_id")  # Merge in supplier names
-  
-  districts_with_data <- districts_with_data |>
-    mutate(name_label = paste0(supplier_name.y, " - ", water_syst), .before = objectid_1)
-
   #------------------------------------------------
   # Filter your data reactively based on water source selection.
   #------------------------------------------------
@@ -107,7 +97,7 @@ server <- function(input, output, session) {
     }
     data
   })
-
+  
   #------------------------------------------------
   # Render Tmap of California
   #------------------------------------------------
@@ -116,22 +106,25 @@ server <- function(input, output, session) {
   output$shortage_map <- renderTmap({
     tmap_mode("view")  # interactive mode.
     
-    tmap_options(check.and.fix = TRUE)
-    
     # Build base layers.
     base_map <- 
-      tm_shape(districts_with_data) +
-      tm_fill("state_standard_shortage_level", 
-              title = "Shortage Level", 
-              palette = "Reds", 
-              style = "cat",
-              labels = c("0", "1", "2", "3", "4")) +
+      tm_shape(CA_polygon) +
       tm_borders()
     
     # Filtered data.
     filtered_options <- filtered_source_geo()
     
-    base_map
+    # If filtered data is empty:
+    # just display the base map with no points.
+    if (nrow(filtered_options) == 0) {
+      base_map
+    } else {
+      base_map +
+        tm_shape(filtered_options) +
+        tm_symbols(col = "source_facility_type",
+                   size = 0.005,
+                   title.col = "Facility Type")
+    }
   })
   
   #------------------------------------------------
@@ -153,6 +146,7 @@ server <- function(input, output, session) {
         title = paste("Forecasted shortage level for", id)
       ) +
       theme_minimal()
+    
   }
   
   # Populate Org_id dropdown with unique list of id's.
