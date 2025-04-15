@@ -12,13 +12,14 @@ library(shinydashboard)
 library(tools)
 library(shinyjs)
 library(spnaf)
-
+library(shinyBS)
 source("data_cleaning.R") # Load in data once.
 
 ui <- fluidPage(
   
-  # Initialize shinyjs.
+  # Initialize shinyjs
   useShinyjs(),
+  
   
   # ------------- CSS for custom widgets -------------
   
@@ -83,6 +84,23 @@ ui <- fluidPage(
            column(5,
                   style = "border: 1px double black; padding-top: 15px;",
                   
+                  
+                  # add info-button using bsPopover
+                  div(
+                    style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                    tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                  ),
+                  
+                  # add popover content
+                  bsPopover(
+                    id = "info_graph",
+                    title = "Information",
+                    content = "To generate the graph, select a water district/Org ID and specify the desired date range.",
+                    placement = "right",
+                    trigger = "hover",
+                    options = list(container = "body")
+                  ),
+                  
                   # A fluidRow for the two dropdowns side by side
                   column(6,
                          selectInput("graph_type", "Graph Type", choices = c("Bar Graph", "Line Graph"))
@@ -108,7 +126,24 @@ ui <- fluidPage(
                   # won't take up the full space of the parent column.
                   column(12,
                          style = "padding: 0; margin: 0; border: 1px double black;", # Remove padding and marging so plot is snug.
-                         tmapOutput("shortage_map", height = "100%") # height 100% to make our tmap fill the vertical space in the box. 
+                         
+                         tmapOutput("shortage_map", height = "100%") , # height 100% to make our tmap fill the vertical space in the box. 
+                         
+                         # add info-button using bsPopover
+                         div(
+                           style = "position: absolute; top: 10px; right: 10px;",
+                           tags$span(actionButton("info_map", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                         ),
+                         
+                         # add popover content
+                         bsPopover(
+                           id = "info_map",
+                           title = "Information",
+                           content = "Choose a water district/Org ID by either clicking an area on the map or typing in the search bar.",
+                           placement = "right",
+                           trigger = "hover",
+                           options = list(container = "body")
+                         )
                   ),
            ),
            
@@ -126,16 +161,52 @@ ui <- fluidPage(
                       )
                   ),
            ),
-     )
+    )
   ),
   
   # Bottom Section: Summary Statistics
   fluidRow(
     style = "margin-top: 15px; margin-bottom: 15px; padding: 0px;",
     column(5, 
-           div(style = "height: 300px; border: 1px double black; margin-right: -16px;")),
+           div(style = "height: 300px; border: 1px double black; margin-right: -16px;",
+               # add info-button using bsPopover
+               div(
+                 style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                 tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+               ),
+               
+               # add popover content
+               bsPopover(
+                 id = "info_summary",
+                 title = "Information",
+                 content = "Displaying the summary stats.",
+                 placement = "right",
+                 trigger = "hover",
+                 options = list(container = "body")
+               ),
+           )),
+    
+    
     column(7, 
-           div(style = "height: 300px; border: 1px double black; margin: 1px;")
+           div(style = "height: 300px; border: 1px double black; margin: 1px;",
+               # add info-button using bsPopover
+               div(
+                 style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                 tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+               ),
+               
+               # add popover content
+               bsPopover(
+                 id = "info_NA",
+                 title = "Information",
+                 content = "Displaying the missing information.",
+                 placement = "left",
+                 trigger = "hover",
+                 options = list(container = "body")
+               ),
+           ),
+           
+           
     )
   )
 )
