@@ -65,13 +65,8 @@ ui <- fluidPage(
   
   navbarPage(
     "California Water Data Consortium",
-    tabPanel("Water Analytics"),
-    tabPanel("About Us"),
-    tabPanel("Projects"),
-    tabPanel("News"),
-    tabPanel("Events"),
-    tabPanel("Contact Us"),
-    tabPanel("Donate") 
+    tabPanel("Home"),
+    tabPanel("Dashboard")
   ),
   
   # ------------- Main Screen -------------
@@ -84,29 +79,25 @@ ui <- fluidPage(
     column(12, 
            style = "display: flex; align-items: strech;",
            
-           # Top-Left: This column function represents the left-hand side with our filter options for the tmap.
-           column(2,
-                  style = "border: 1px double black;",
-                  div(style = "padding-top: 15px; padding-left: 10px; padding-right: 10px",
-                      actionButton("toggle_facility_type", "Facility Type", class = "btn-toggle-off"),
-                      div(style = "padding: 15px",
-                          conditionalPanel(
-                            condition = "input.toggle_facility_type %% 2 == 1",
-                            checkboxGroupInput("facility_type", "Select Facility Type:", 
-                                               choices = toTitleCase(unique(spatial_data$source_geo$source_facility_type)),
-                                               selected = "Well"),
-                          )),
+           # Top-Right: Water Shortage Level Graph.
+           column(5,
+                  style = "border: 1px double black; padding-top: 15px;",
+                  
+                  # A fluidRow for the two dropdowns side by side
+                  column(6,
+                         selectInput("graph_type", "Graph Type", choices = c("Bar Graph", "Line Graph"))
+                  ),
+                  column(6,
+                         selectInput("org_id", "Select Org ID", choices = NULL)
                   ),
                   
-                  div(style = "padding: 10px;",
-                      actionButton("toggle_shortage_year", "Shortage Year", class = "btn-toggle-off"),
-                      div(style = "padding: 15px",
-                          conditionalPanel(
-                            condition = "input.toggle_shortage_year %% 2 == 1",
-                            checkboxGroupInput("shortage_year", "Select Shortage Year:", 
-                                               choices = unique(format(as.Date(water_data$actual_shortage$start_date, format = "%Y-%m-%d"), "%Y"))))
-                      )
-                  ),
+                  # A second fluidRow for the date range + plot
+                  fluidRow(
+                    column(12,
+                           # The existing plot output
+                           plotOutput("supply_demand_plots", height = "550px")
+                    )
+                  )
            ),
            
            # Top-Center: Interactive Tmap.
@@ -121,51 +112,30 @@ ui <- fluidPage(
                   ),
            ),
            
-           # Top-Right: Water Shortage Level Graph.
-           column(5,
-                  style = "border: 1px double black; padding-top: 15px;",
+           # Top-Left: This column function represents the left-hand side with our filter options for the tmap.
+           column(2,
+                  style = "border: 1px double black;",
                   
-                  # A fluidRow for the two dropdowns side by side
-                    column(6,
-                           selectInput("graph_type", "Graph Type", choices = c("Bar Graph", "Line Graph"))
-                    ),
-                    column(6,
-                           selectInput("org_id", "Select Org ID", choices = NULL)
-                    ),
-                  
-                  # A second fluidRow for the date range + plot
-                  fluidRow(
-                    column(12,
-                           # The existing plot output
-                           plotOutput("supply_demand_plots", height = "550px")
-                    )
-                  )
+                  div(style = "padding: 10px;",
+                      actionButton("toggle_shortage_year", "Shortage Year", class = "btn-toggle-off"),
+                      div(style = "padding: 15px",
+                          conditionalPanel(
+                            condition = "input.toggle_shortage_year %% 2 == 1",
+                            checkboxGroupInput("shortage_year", "Select Shortage Year:", 
+                                               choices = unique(format(as.Date(water_data$actual_shortage$start_date, format = "%Y-%m-%d"), "%Y"))))
+                      )
+                  ),
            ),
      )
   ),
   
   # Bottom Section: Summary Statistics
   fluidRow(
-    style = "border: 1px double black; margin-top: 15px; margin-left: 1px; margin-right: 1px;",
-    column(4,
-           box(
-             title = "Water Summary", 
-             solidHeader = TRUE, 
-             width = 12,
-             div(textOutput("orgid_coords"), style = "font-weight: bold; font-size: 16px;"),
-             div(selectInput("select_county", "", choices = NULL)),
-             p("Water Produced: 10,580 acre-feet"),
-             p("Water Delivered: 9,120 acre-feet"),
-             p("Water Sources (2024 Annual %):"),
-             fluidRow(
-               column(6, p("10% Ocean")),
-               column(6, p("30% Purchased")),
-               column(6, p("36% Groundwater")),
-               column(6, p("24% River"))
-             )
-           )
-    ),
-    column(4, plotOutput("water_stats", height = "150px")),
-    column(4, plotOutput("shortage_gauge", height = "300px"))
+    style = "margin-top: 15px; margin-bottom: 15px; padding: 0px;",
+    column(5, 
+           div(style = "height: 300px; border: 1px double black; margin-right: -16px;")),
+    column(7, 
+           div(style = "height: 300px; border: 1px double black; margin: 1px;")
+    )
   )
 )
