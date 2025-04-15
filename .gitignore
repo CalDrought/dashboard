@@ -5,4 +5,4 @@
 
 /data
 *.Rproj
-
+.DS_Store
