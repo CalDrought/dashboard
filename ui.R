@@ -84,7 +84,6 @@ ui <- fluidPage(
            column(5,
                   style = "border: 1px double black; padding-top: 15px;",
                   
-                  
                   # add info-button using bsPopover
                   div(
                     style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
@@ -101,19 +100,29 @@ ui <- fluidPage(
                     options = list(container = "body")
                   ),
                   
-                  # A fluidRow for the two dropdowns side by side
-                  column(6,
-                         selectInput("graph_type", "Graph Type", choices = c("Bar Graph", "Line Graph"))
+                  fluidRow(
+                #    style = "border: 1px double black;",
+                    
+                    column(12,
+                           style = "display: flex;",
+                           selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%"))
                   ),
-                  column(6,
-                         selectInput("org_id", "Select Org ID", choices = NULL)
+                  
+                  fluidRow(
+                    # A fluidRow for the two dropdowns side by side
+                    column(6,
+                           selectInput("graph_type", "Graph Type", choices = c("Bar Graph", "Line Graph"))
+                    ),
+                    #column(6,
+                    #      selectInput("org_id", "Select Org ID", choices = NULL)
+                    #),
                   ),
                   
                   # A second fluidRow for the date range + plot
                   fluidRow(
                     column(12,
                            # The existing plot output
-                           plotOutput("supply_demand_plots", height = "550px")
+                           plotOutput("plot_output", height = "550px")
                     )
                   )
            ),
@@ -121,13 +130,15 @@ ui <- fluidPage(
            # Top-Center: Interactive Tmap.
            column(5,
                   style = "display: flex;",
-                  
+
                   # Columns have an default padding of 15px therefore 12/12 
                   # won't take up the full space of the parent column.
                   column(12,
                          style = "padding: 0; margin: 0; border: 1px double black;", # Remove padding and marging so plot is snug.
                          
-                         tmapOutput("shortage_map", height = "100%") , # height 100% to make our tmap fill the vertical space in the box. 
+                         tmapOutput("shortage_map", height = "100%"), # height 100% to make our tmap fill the vertical space in the box.
+                         
+                         div(selectInput("org_id", "Select Org ID", choices = NULL)),
                          
                          # add info-button using bsPopover
                          div(
@@ -143,7 +154,7 @@ ui <- fluidPage(
                            placement = "right",
                            trigger = "hover",
                            options = list(container = "body")
-                         )
+                         ),
                   ),
            ),
            

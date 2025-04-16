@@ -18,6 +18,7 @@ library(tools)
 library(bslib)
 
 source("data_cleaning.R") # Load in data once.
+source("dashboard_functions.R") # Load dashboard plot functions.
 
 # Subset our list of datasets for `source_name` data.
 source_name <- water_data$source_name
@@ -160,8 +161,36 @@ server <- function(input, output, session) {
     updateSelectInput(session, "org_id", choices = all_ids, selected = all_ids[1])
   })
   
-  output$supply_demand_plots <- renderPlot({
-    actual_shortage_fun(input$org_id)
+  output$plot_output <- renderPlot({
+    five_year_plot(input$org_id)
+  })
+  
+  
+  # ---- Here is the filering for datasets.
+  
+  # Populate Dataset selection dropdown with our dataset names.
+  observe({
+   # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
+    all_dataset_names <- sort(names(water_data))
+    updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2])
+  })
+  
+  # Main server logic
+  output$plot_output <- renderPlot({
+    req(input$dataset_selector)
+    
+    selected_name <- input$dataset_selector
+    selected_df <- water_data[[selected_name]]
+    
+    # Conditional logic to route to correct processing function
+    plot <- switch(selected_name,
+                   "five_year_outlook" = five_year_plot(input$org_id),
+                  # "historical_production" = hist_plot_function(input$org_id, )
+                   ggplot() + ggtitle("No plot defined for this dataset")
+    )
+    
+    plot
   })
 }
+
 

@@ -1,20 +1,20 @@
+source("data_cleaning.R")
+
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                                                                            --
 ##----------------------- FIVE YEAR OUTLOOK FUNCTIONS---------------------------
 ##                                                                            --
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                        Five Year Filtering Function                      ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Function for 5 Year Outlook Filtering
-five_filter_function <- function(id, year) {
+five_filter_function <- function(id, year = 2022) {
   
   # Create filtered df from original
-  five_year_filter <- five_year_outlook %>% 
+  five_year_filter <- water_data$five_year_outlook %>% 
     
     # Filter data to specific org_id
     filter(org_id == id) %>%
@@ -46,7 +46,7 @@ five_filter_function <- function(id, year) {
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Function for 5 Year Outlook Plot
-five_year_plot <- function(id, year) {
+five_year_plot <- function(id, year = 2022) {
   
   # Using five_filter_function for pre-filtered data
   filtered_data <- five_filter_function(id, year)
