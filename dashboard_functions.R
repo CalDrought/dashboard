@@ -317,7 +317,7 @@ monthly_filter <- function(id, date){
   }
   
   # Filter to org_id
-  monthly_filter <- monthly_water_outlook %>% 
+  monthly_filter <- water_data$monthly_water_outlook %>% 
     filter(org_id == id) %>% 
     
     # Create new forecast year column
