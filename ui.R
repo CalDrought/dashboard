@@ -108,15 +108,7 @@ ui <- fluidPage(
                            selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%"))
                   ),
                   
-                  fluidRow(
-                    # A fluidRow for the two dropdowns side by side
-                    column(6,
-                           selectInput("graph_type", "Graph Type", choices = c("Bar Graph", "Line Graph"))
-                    ),
-                    #column(6,
-                    #      selectInput("org_id", "Select Org ID", choices = NULL)
-                    #),
-                  ),
+                  uiOutput("plot_controls"),
                   
                   # A second fluidRow for the date range + plot
                   fluidRow(
@@ -138,7 +130,7 @@ ui <- fluidPage(
                          
                          tmapOutput("shortage_map", height = "100%"), # height 100% to make our tmap fill the vertical space in the box.
                          
-                         div(selectInput("org_id", "Select Org ID", choices = NULL)),
+                         #div(selectInput("org_id", "Select Org ID", choices = NULL)),
                          
                          # add info-button using bsPopover
                          div(

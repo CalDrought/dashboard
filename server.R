@@ -16,6 +16,7 @@ library(shinyjs)
 library(dplyr)
 library(tools)
 library(bslib)
+library(shinyWidgets)
 
 source("data_cleaning.R") # Load in data once.
 source("dashboard_functions.R") # Load dashboard plot functions.
@@ -133,62 +134,178 @@ server <- function(input, output, session) {
     base_map
   })
   
+  # actual_shortage_fun <- function(id) {
+  #   df <- water_data$actual_shortage %>%
+  #     filter(org_id == id)
+  #   
+  #   ggplot(df, aes(x = start_date, 
+  #                  y = state_standard_shortage_level)) +
+  #     geom_col(fill = "lightblue", color = "black") +
+  #     # Force the y-axis to range from 0 to 6 (since you mentioned 0 through 6)
+  #     scale_y_continuous(limits = c(0, 6), breaks = 0:6) +
+  #     labs(
+  #       x = "Forecast Start Date",
+  #       y = "Shortage Level (1–6)",
+  #       title = paste("Forecasted shortage level for", id)
+  #     ) +
+  #     theme_minimal()
+  #   
+  # }
+  
   #------------------------------------------------
-  # Render Function for Shortage Level from actual shortage.
+  # Plot outputs widget + widgets
   #------------------------------------------------
   
-  actual_shortage_fun <- function(id) {
-    df <- water_data$actual_shortage %>%
-      filter(org_id == id)
-    
-    ggplot(df, aes(x = start_date, 
-                   y = state_standard_shortage_level)) +
-      geom_col(fill = "lightblue", color = "black") +
-      # Force the y-axis to range from 0 to 6 (since you mentioned 0 through 6)
-      scale_y_continuous(limits = c(0, 6), breaks = 0:6) +
-      labs(
-        x = "Forecast Start Date",
-        y = "Shortage Level (1–6)",
-        title = paste("Forecasted shortage level for", id)
-      ) +
-      theme_minimal()
-    
-  }
-  
-  # Populate Org_id dropdown with unique list of id's.
-  observe({
-    all_ids <- sort(unique(water_data$actual_shortage$org_id))
-    updateSelectInput(session, "org_id", choices = all_ids, selected = all_ids[1])
-  })
-  
-  output$plot_output <- renderPlot({
-    five_year_plot(input$org_id)
-  })
-  
-  
-  # ---- Here is the filering for datasets.
+  # ---------- Column 1: Inside Box 1: Row 1 (Dataset Selection Dropdown) ----------
   
   # Populate Dataset selection dropdown with our dataset names.
   observe({
-   # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
-    all_dataset_names <- sort(names(water_data))
-    updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2])
+    # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
+    all_dataset_names <- sort(names(water_data)) # sort dataset names.
+    updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2]) # update dataset dropdown with new selection.
   })
   
-  # Main server logic
-  output$plot_output <- renderPlot({
+  # ---------- Initializing UI Date Pickers ----------
+  
+  # Helper function for date selection. **Reactive** to dataset choice.
+  date_range <- reactive({
     req(input$dataset_selector)
+    df <- water_data[[input$dataset_selector]]
     
+    # actual vs forecast
+    if (input$dataset_selector %in% 
+        c("actual_shortage","historical_production","monthly_water_outlook")) {
+      dates <- as.Date(df$start_date %||% df$forecast_start_date)
+    } else {
+      dates <- NULL
+    }
+    
+    list(
+      minDate = min(dates),
+      maxDate = max(dates),
+      default = min(dates)
+    )
+  })
+  
+  # Whenever the dataset changes, reset org_id + date or year pickers
+  observeEvent(input$dataset_selector, {
+    df   <- water_data[[input$dataset_selector]]
+    orgs <- sort(unique(df$org_id))
+    
+    updateSelectInput(session, "org_id",
+                      choices  = orgs,
+                      selected = orgs[1])
+    
+    # date‐based datasets
+    if (input$dataset_selector %in% 
+        c("actual_shortage","monthly_water_outlook","historical_production")) {
+      
+      dr <- date_range()
+      
+      # set the start‐picker to the earliest month,
+      # limited between overall min/max
+      updateAirDateInput(
+        session, "date_picker_start",
+        value   = dr$default,
+        options = list(
+          minDate = dr$minDate,
+          maxDate = dr$maxDate
+        )
+      )
+      
+      # set the end‐picker to the latest month,
+      # same overall bounds for now
+      updateAirDateInput(
+        session, "date_picker_end",
+        value   = dr$default,
+        options = list(
+          minDate = dr$minDate,
+          maxDate = dr$maxDate
+        )
+      )
+      
+      # five‐year outlook → year dropdown
+    } else if (input$dataset_selector == "five_year_outlook") {
+      yrs <- sort(unique(format(as.Date(df$forecast_start_date), "%Y")))
+      updateSelectInput(session, "year",
+                        choices  = yrs,
+                        selected = yrs[1])
+    }
+  })
+  
+  observeEvent(input$date_picker_start, {
+    start <- as.Date(input$date_picker_start)
+    dr    <- date_range()
+    updateAirDateInput(
+      session, "date_picker_end",
+      options = list(minDate = start,
+                     maxDate = dr$maxDate)
+    )
+  })
+  
+  # ---------- Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) ----------
+  
+  # Render plot controls here.
+  output$plot_controls<- renderUI({
+    req(input$dataset_selector)
+    dr <- date_range()
+    
+    # Depending on the dataset you select the UI controls will change.
+    # Below we have the server UI for each selected dataset.
+    switch(input$dataset_selector,
+           
+           # Actual Shortage only uses org_id and date (as [start, end])
+           "actual_shortage" = tagList(),
+           "monthly_water_outlook" = fluidRow(
+             column(4,
+                    selectInput("org_id", "Select Org ID", choices = NULL)
+             ),
+             column(4,
+                    airDatepickerInput(
+                      "date_picker_start", label = "Start month",
+                      view       = "months",   minView = "months",
+                      dateFormat = "yyyy-MM",
+                      value      = dr$default,
+                      minDate    = dr$minDate,
+                      maxDate    = dr$maxDate
+                    )
+             ),
+             column(4,
+                    airDatepickerInput(
+                      "date_picker_end", label = "End month",
+                      view       = "months",   minView = "months",
+                      dateFormat = "yyyy-MM",
+                      value      = dr$maxDate,
+                      minDate    = dr$minDate,
+                      maxDate    = dr$maxDate
+                    )
+             )
+           ),
+           "five_year_outlook" = tagList(),
+           "source_name" = tagList(),
+           "historical_production" = tagList(),
+    )
+  })
+  
+  # ---------- Column 1: Inside Box 1: Row 3 (Plot Display) ----------
+  
+  # This is where we update the plot functions based on the selection of datasets.
+  output$plot_output <- renderPlot({
+    req(input$dataset_selector, input$date_picker_start, input$date_picker_end)
+    
+    # Find dataset based on name.
     selected_name <- input$dataset_selector
     selected_df <- water_data[[selected_name]]
     
-    # Conditional logic to route to correct processing function
+    # Switch statement to change function based on dataset.
     plot <- switch(selected_name,
-                   "five_year_outlook" = five_year_plot(input$org_id),
+                   "monthly_water_outlook" = monthly_plot_function(input$date_picker_start, input$date_picker_end),
+                  # "five_year_outlook" = five_year_plot(input$org_id),
                   # "historical_production" = hist_plot_function(input$org_id, )
                    ggplot() + ggtitle("No plot defined for this dataset")
     )
     
+    # Output plot.
     plot
   })
 }
