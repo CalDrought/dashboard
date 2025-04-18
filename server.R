@@ -189,7 +189,7 @@ server <- function(input, output, session) {
   
   # Whenever the dataset changes, reset org_id + date or year pickers
   observeEvent(input$dataset_selector, {
-    df   <- water_data[[input$dataset_selector]]
+    df <- water_data[[input$dataset_selector]]
     orgs <- sort(unique(df$org_id))
     
     updateSelectInput(session, "org_id",
@@ -206,7 +206,7 @@ server <- function(input, output, session) {
       # limited between overall min/max
       updateAirDateInput(
         session, "date_picker_start",
-        value   = dr$default,
+        value = dr$default,
         options = list(
           minDate = dr$minDate,
           maxDate = dr$maxDate
@@ -217,14 +217,14 @@ server <- function(input, output, session) {
       # same overall bounds for now
       updateAirDateInput(
         session, "date_picker_end",
-        value   = dr$default,
+        value = dr$default,
         options = list(
           minDate = dr$minDate,
           maxDate = dr$maxDate
         )
       )
       
-      # five‐year outlook → year dropdown
+      # five‐year outlook -> year dropdown
     } else if (input$dataset_selector == "five_year_outlook") {
       yrs <- sort(unique(format(as.Date(df$forecast_start_date), "%Y")))
       updateSelectInput(session, "year",
@@ -235,7 +235,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$date_picker_start, {
     start <- as.Date(input$date_picker_start)
-    dr    <- date_range()
+    dr <- date_range()
     updateAirDateInput(
       session, "date_picker_end",
       options = list(minDate = start,
@@ -263,21 +263,22 @@ server <- function(input, output, session) {
              column(4,
                     airDatepickerInput(
                       "date_picker_start", label = "Start month",
-                      view       = "months",   minView = "months",
+                      view = "months", 
+                      minView = "months",
                       dateFormat = "yyyy-MM",
-                      value      = dr$default,
-                      minDate    = dr$minDate,
-                      maxDate    = dr$maxDate
+                      value = dr$default,
+                      minDate = dr$minDate,
+                      maxDate = dr$maxDate
                     )
              ),
              column(4,
                     airDatepickerInput(
                       "date_picker_end", label = "End month",
-                      view       = "months",   minView = "months",
+                      view = "months",   minView = "months",
                       dateFormat = "yyyy-MM",
-                      value      = dr$maxDate,
-                      minDate    = dr$minDate,
-                      maxDate    = dr$maxDate
+                      value = dr$maxDate,
+                      minDate = dr$minDate,
+                      maxDate = dr$maxDate
                     )
              )
            ),
@@ -291,15 +292,22 @@ server <- function(input, output, session) {
   
   # This is where we update the plot functions based on the selection of datasets.
   output$plot_output <- renderPlot({
-    req(input$dataset_selector, input$date_picker_start, input$date_picker_end)
+    # Need dataset, org_id, start/end dates.
+    req(input$dataset_selector, input$org_id, input$date_picker_start, input$date_picker_end)
     
     # Find dataset based on name.
     selected_name <- input$dataset_selector
     selected_df <- water_data[[selected_name]]
     
+    # Filtering the dates to the proper input format. 
+    start_ym <- format(as.Date(input$date_picker_start), "%Y-%m")
+    end_ym   <- format(as.Date(input$date_picker_end),   "%Y-%m")
+    
+    print(c(input$date_picker_start, input$date_picker_end))
+    print(c(start_ym, end_ym))
     # Switch statement to change function based on dataset.
     plot <- switch(selected_name,
-                   "monthly_water_outlook" = monthly_plot_function(input$date_picker_start, input$date_picker_end),
+                   "monthly_water_outlook" = monthly_plot_function(input$org_id, c(start_ym, end_ym)),
                   # "five_year_outlook" = five_year_plot(input$org_id),
                   # "historical_production" = hist_plot_function(input$org_id, )
                    ggplot() + ggtitle("No plot defined for this dataset")
