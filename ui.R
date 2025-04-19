@@ -168,30 +168,48 @@ ui <- fluidPage(
     )
   ),
   
-  # Bottom Section: Summary Statistics
+  
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                  Bottom Section: Summary Stats & NA Values               ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  
+  # Summary Stats Section
   fluidRow(
     style = "margin-top: 15px; margin-bottom: 15px; padding: 0px;",
     column(5, 
-           div(style = "height: 300px; border: 1px double black; margin-right: -16px;",
-               # add info-button using bsPopover
-               div(
-                 style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                 tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-               ),
-               
-               # add popover content
-               bsPopover(
-                 id = "info_summary",
-                 title = "Information",
-                 content = "Displaying the summary stats.",
-                 placement = "right",
-                 trigger = "hover",
-                 options = list(container = "body")
-               ),
-           )),
+           
+           # --- START Bottom Left Panel --- # 
+          
+             # --- START Info Button --- #
+             div(style = "height: 300px; border: 1px double black; margin-right: -16px;",
+                 # add info-button using bsPopover
+                 div(
+                   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                   tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                 ),
+                 
+                 # add popover content
+                 bsPopover(
+                   id = "info_summary",
+                   title = "Information",
+                   content = "Displaying the summary stats.",
+                   placement = "right",
+                   trigger = "hover",
+                   options = list(container = "body")
+                 ),
+             ), # --- END Info Button --- # 
+             
+            
+           
+           ), # --- END Bottom Left Panel --- # 
     
     
-    column(7, 
+    # NA Values Section 
+    column(7,
+           
+           # --- START Info Button --- #
            div(style = "height: 300px; border: 1px double black; margin: 1px;",
                # add info-button using bsPopover
                div(
@@ -208,7 +226,7 @@ ui <- fluidPage(
                  trigger = "hover",
                  options = list(container = "body")
                ),
-           ),
+           ), # --- END Info Button --- # 
            
            
     )
