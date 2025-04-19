@@ -259,7 +259,42 @@ server <- function(input, output, session) {
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            
            # Actual Shortage only uses org_id and date (as [start, end])
-           "actual_shortage" = tagList(), # END ACTUAL SHORTAGE WIDGET
+           "actual_shortage" = fluidRow(
+             
+             # Org_id selection drop down
+             column(4,
+                    selectInput("org_id", "Select Org ID", choices = NULL)
+             ),
+             
+             # Month-Year end selection drop down
+             column(4,
+                    airDatepickerInput(
+                      "date_picker_start", 
+                      label = "Start month",
+                      view = "months", 
+                      minView = "months",
+                      dateFormat = "yyyy-MM",
+                      value = dr$default,
+                      minDate = dr$minDate,
+                      maxDate = dr$maxDate
+                    )
+             ),
+             
+             # Month-Year end selection drop down
+             column(4,
+                    airDatepickerInput(
+                      "date_picker_end", 
+                      label = "End month",
+                      view = "months",   
+                      minView = "months",
+                      dateFormat = "yyyy-MM",
+                      value = dr$maxDate,
+                      minDate = dr$minDate,
+                      maxDate = dr$maxDate
+                    )
+             )
+           ), # END ACTUAL SHORTAGE WIDGET
+           
            
            
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -302,6 +337,8 @@ server <- function(input, output, session) {
              )
            ), ### END MONTHLY PLOT WIDGET
            
+           
+           
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            ##  ~ Five Year Outlook Plot  ----
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -340,6 +377,7 @@ server <- function(input, output, session) {
                     )
              )
            ), # END FIVE YEAR PLOT WIDGET
+           
            
            
            ##~~~~~~~~~~~~~~~~~~~~~
@@ -466,7 +504,7 @@ server <- function(input, output, session) {
                    "historical_production" = hist_plot_function(input$org_id, c(start_ym, end_ym), input$type),
                   
                   # --- Actual Water Shortage Plot Output Function --- # 
-                   ggplot() + ggtitle("No plot defined for this dataset")
+                   "actual_shortage" = actual_plot_function(input$org_id, c(start_ym, end_ym))
     )
     
     # Output plot.

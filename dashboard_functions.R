@@ -467,7 +467,7 @@ actual_filter_function <- function(id, date){
   
   
   # Filter water shortage to Goleta 
-  actual_filter <- actual_shortage %>% 
+  actual_filter <- water_data$actual_shortage %>% 
     filter(org_id == id) %>% 
     
     mutate(year_month = format(start_date, "%Y-%m")) %>% 
@@ -480,6 +480,33 @@ actual_filter_function <- function(id, date){
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                        Actual Water Plot Function                        ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+actual_plot_function <- function(id, date){
+  
+  # Plot Water shortage levels for Goleta 
+  ggplot(actual_filter_function(id, date), aes(x = start_date, y = state_standard_shortage_level)) +
+    geom_col(fill = "orange3", width = 20) +
+    
+    # Format the x-axis to show month & year (e.g., "Mar 2022")
+    scale_x_date(
+      date_labels = "%b %Y",
+      date_breaks = "1 month",
+      expand = c(0.01, 0.01)) +
+    
+    labs(x = "Month",
+         y = "Shortage Level") +
+    
+    
+    theme_minimal(base_size = 13) +
+    
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(face = "bold"),
+      plot.subtitle = element_text(size = 11)
+    )
+  
+  
+}
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                    Actual Water NA Values Calculation                    ----
