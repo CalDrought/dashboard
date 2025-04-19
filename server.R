@@ -119,7 +119,7 @@ server <- function(input, output, session) {
   output$shortage_map <- renderTmap({
     tmap_mode("view")  # interactive mode.
     
-    tmap_options(check.and.fix = TRUE)
+    # tmap_options(check.and.fix = TRUE)
     
     # Build base layers.
     base_map <- 
@@ -243,7 +243,7 @@ server <- function(input, output, session) {
     )
   })
   
-  # ---------- Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) ----------
+  # -------- START  Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) -------
   
   # Render plot controls here.
   output$plot_controls<- renderUI({
@@ -254,15 +254,30 @@ server <- function(input, output, session) {
     # Below we have the server UI for each selected dataset.
     switch(input$dataset_selector,
            
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Actual Shortage Plot  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           
            # Actual Shortage only uses org_id and date (as [start, end])
-           "actual_shortage" = tagList(),
+           "actual_shortage" = tagList(), # END ACTUAL SHORTAGE WIDGET
+           
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Monthly Water Outlook Plot  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           
            "monthly_water_outlook" = fluidRow(
+             
+             # Org_id selection drop down
              column(4,
                     selectInput("org_id", "Select Org ID", choices = NULL)
              ),
+             
+             # Month-Year end selection drop down
              column(4,
                     airDatepickerInput(
-                      "date_picker_start", label = "Start month",
+                      "date_picker_start", 
+                      label = "Start month",
                       view = "months", 
                       minView = "months",
                       dateFormat = "yyyy-MM",
@@ -271,27 +286,147 @@ server <- function(input, output, session) {
                       maxDate = dr$maxDate
                     )
              ),
+             
+             # Month-Year end selection drop down
              column(4,
                     airDatepickerInput(
-                      "date_picker_end", label = "End month",
-                      view = "months",   minView = "months",
+                      "date_picker_end", 
+                      label = "End month",
+                      view = "months",   
+                      minView = "months",
                       dateFormat = "yyyy-MM",
                       value = dr$maxDate,
                       minDate = dr$minDate,
                       maxDate = dr$maxDate
                     )
              )
-           ),
-           "five_year_outlook" = tagList(),
-           "source_name" = tagList(),
-           "historical_production" = tagList(),
+           ), ### END MONTHLY PLOT WIDGET
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Five Year Outlook Plot  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           "five_year_outlook" = fluidRow(
+             
+             # Org_id selection drop down
+             column(4,
+                    selectInput("org_id", "Select Org ID", choices = NULL)
+             ),
+             
+             # Year start selection drop down
+             column(4,
+                    airDatepickerInput(
+                      "date_picker_start", 
+                      label = "Start year",
+                      view = "years", 
+                      minView = "years",
+                      dateFormat = "yyyy",
+                      value = dr$default,
+                      minDate = dr$minDate,
+                      maxDate = dr$maxDate
+                    )
+             ),
+             
+             # Year end selection drop down
+             column(4,
+                    airDatepickerInput(
+                      "date_picker_end", 
+                      label = "End year",
+                      view = "years",   
+                      minView = "years",
+                      dateFormat = "yyyy",
+                      value = dr$maxDate,
+                      minDate = dr$minDate,
+                      maxDate = dr$maxDate
+                    )
+             )
+           ), # END FIVE YEAR PLOT WIDGET
+           
+           
+           ##~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Source Name  ----
+           ##~~~~~~~~~~~~~~~~~~~~~
+           "source_name" = tagList(
+             
+             
+             
+           ), # END SOURCE NAME WIDGET 
+           
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Historical Production Plot  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           "historical_production" = tagList(
+             
+             
+             fluidRow(
+               
+               # Org_id selection drop down
+               column(4,
+                      selectInput("org_id", "Select Org ID", choices = NULL)
+               ),
+               
+               # Month-Year end selection drop down
+               column(4,
+                      airDatepickerInput(
+                        "date_picker_start", 
+                        label = "Start month",
+                        view = "months", 
+                        minView = "months",
+                        dateFormat = "yyyy-MM",
+                        value = dr$default,
+                        minDate = dr$minDate,
+                        maxDate = dr$maxDate
+                      )
+               ),
+               
+               # Month-Year end selection drop down
+               column(4,
+                      airDatepickerInput(
+                        "date_picker_end", 
+                        label = "End month",
+                        view = "months",   
+                        minView = "months",
+                        dateFormat = "yyyy-MM",
+                        value = dr$maxDate,
+                        minDate = dr$minDate,
+                        maxDate = dr$maxDate
+                      )
+               )
+             ),
+             
+             # Second row for water type selection
+             fluidRow(
+               
+               column(12,
+                      
+                      # Selecting water type
+                      selectInput("type", "Selct Type", c("agriculture", "surface water", "industrial", 
+                                                          "other", "single-family residential", "commercial/institutional",
+                                                          "landscape irrigation", "multi-family residential", 
+                                                          "other pws", "recycled", "sold to another pws", "groundwater wells",
+                                                          "non-potable (total excluded recycled)", "purchased or received from another pws",
+                                                          "non-potable water sold to another pws"),
+                                  
+                                  multiple = TRUE, # Able to select multiple "Types"
+                                  width = "100%")) # Selection bar covers all of the fitted area
+               
+               
+             ) # END SECOND ROW Water type selection
+             
+             
+             
+           ), # END HISTORICAL PRODUCTION WIDGET
     )
-  })
+  }) # -------- END Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) -------
   
-  # ---------- Column 1: Inside Box 1: Row 3 (Plot Display) ----------
+  
+  
+  # -------START Column 1: Inside Box 1: Row 3 (Plot Display) --------
   
   # This is where we update the plot functions based on the selection of datasets.
   output$plot_output <- renderPlot({
+    
+    
     # Need dataset, org_id, start/end dates.
     req(input$dataset_selector, input$org_id, input$date_picker_start, input$date_picker_end)
     
@@ -299,23 +434,43 @@ server <- function(input, output, session) {
     selected_name <- input$dataset_selector
     selected_df <- water_data[[selected_name]]
     
+    # Extra Requirement for Historical_production
+    if (selected_name == "historical_production"){
+      req(input$type)
+    }
+    
     # Filtering the dates to the proper input format. 
+    # This is for most datasets as they are displayed in Year, month
     start_ym <- format(as.Date(input$date_picker_start), "%Y-%m")
     end_ym   <- format(as.Date(input$date_picker_end),   "%Y-%m")
     
+    # Filtering for years to the proper input format
+    # This is used for the "Five_year_outlook" as it is displayed in years
+    start_y <- format(as.Date(input$date_picker_start), "%Y")
+    end_y  <- format(as.Date(input$date_picker_end),   "%Y")
+    
     print(c(input$date_picker_start, input$date_picker_end))
     print(c(start_ym, end_ym))
+    
+    
     # Switch statement to change function based on dataset.
     plot <- switch(selected_name,
+                   
+                   # --- Monthly Water Plot output Function --- #
                    "monthly_water_outlook" = monthly_plot_function(input$org_id, c(start_ym, end_ym)),
-                  # "five_year_outlook" = five_year_plot(input$org_id),
-                  # "historical_production" = hist_plot_function(input$org_id, )
+                   
+                   # --- Five Year Plot Output Function --- #
+                   "five_year_outlook" = five_year_plot(input$org_id, c(start_y, end_y)),
+                   
+                   # --- Historical Production Plot Output Function --- # 
+                   "historical_production" = hist_plot_function(input$org_id, c(start_ym, end_ym), input$type),
+                  
+                  # --- Actual Water Shortage Plot Output Function --- # 
                    ggplot() + ggtitle("No plot defined for this dataset")
     )
     
     # Output plot.
     plot
-  })
+  }) # -------END Column 1: Inside Box 1: Row 3 (Plot Display) --------
 }
-
 

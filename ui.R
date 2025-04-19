@@ -80,7 +80,7 @@ ui <- fluidPage(
     column(12, 
            style = "display: flex; align-items: strech;",
            
-           # Top-Right: Water Shortage Level Graph.
+           # Top-Left: Water Shortage Level Graph.
            column(5,
                   style = "border: 1px double black; padding-top: 15px;",
                   
@@ -103,6 +103,7 @@ ui <- fluidPage(
                   fluidRow(
                 #    style = "border: 1px double black;",
                     
+                    # PICKING THE DATASET
                     column(12,
                            style = "display: flex;",
                            selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%"))
@@ -150,7 +151,7 @@ ui <- fluidPage(
                   ),
            ),
            
-           # Top-Left: This column function represents the left-hand side with our filter options for the tmap.
+           # Top-Right: This column function represents the left-hand side with our filter options for the tmap.
            column(2,
                   style = "border: 1px double black;",
                   
