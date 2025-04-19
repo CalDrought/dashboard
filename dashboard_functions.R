@@ -1,10 +1,10 @@
+source("data_cleaning.R")
+
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                                                                            --
 ##----------------------- FIVE YEAR OUTLOOK FUNCTIONS---------------------------
 ##                                                                            --
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                        Five Year Filtering Function                      ----
@@ -13,8 +13,13 @@
 # Function for 5 Year Outlook Filtering
 five_filter_function <- function(id, year) {
   
+  # If year has two values, assume it's a range
+  if (length(year) == 2) {
+    year <- seq(from = as.numeric(year[1]), to = as.numeric(year[2]), by = 1)
+  }
+  
   # Create filtered df from original
-  five_year_filter <- five_year_outlook %>% 
+  five_year_filter <- water_data$five_year_outlook %>% 
     
     # Filter data to specific org_id
     filter(org_id == id) %>%
@@ -142,7 +147,7 @@ hist_filt_function <- function(id, date){
   }
   
   # Start of historical production filtering
-  hist_filter <- historical_production %>% 
+  hist_filter <- water_data$historical_production %>% 
     
     # filter to org_id
     filter(org_id == id) %>% 
@@ -317,7 +322,7 @@ monthly_filter <- function(id, date){
   }
   
   # Filter to org_id
-  monthly_filter <- monthly_water_outlook %>% 
+  monthly_filter <- water_data$monthly_water_outlook %>% 
     filter(org_id == id) %>% 
     
     # Create new forecast year column
