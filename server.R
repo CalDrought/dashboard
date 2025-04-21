@@ -756,7 +756,134 @@ output$summary_stats <- renderUI({
          ) # END Historical Production
          )
 })
+
   
+  
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##                            NA Values Reactive UI                         ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  # START NA Values Reactive UI
+  output$na_values <- renderUI({
+    
+    # Required dataset for UI Output
+    req(input$dataset_selector)
+    
+    # START Reactive NA UI
+    switch(input$dataset_selector,
+           
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Monthly Water Outlook  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           
+           "monthly_water_outlook" = tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_NA",
+               title = "Information",
+               content = "Displaying the missing information.",
+               placement = "left",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Missing Information", style = "text-align: center;")
+             
+           ), # END Monthly Outlook
+           
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Five Year Outlook  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           
+           "five_year_outlook" = tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_NA",
+               title = "Information",
+               content = "Displaying the missing information.",
+               placement = "left",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Missing Information", style = "text-align: center;")
+             
+           ), # END Five Year Outlook
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Actual Shortage  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~
+           
+           "actual_shortage" = tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_NA",
+               title = "Information",
+               content = "Displaying the missing information.",
+               placement = "left",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Missing Information", style = "text-align: center;")
+             
+           ), # END Actual Shortage 
+           
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Historical Production  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           
+           "historical_production" = tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_NA",
+               title = "Information",
+               content = "Displaying the missing information.",
+               placement = "left",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Missing Information", style = "text-align: center;")
+             
+           ), # END Historical Production 
+           
+           ) # END Reactive NA UI
+  })
 
 }
 
