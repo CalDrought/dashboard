@@ -243,6 +243,10 @@ server <- function(input, output, session) {
     )
   })
   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                          Reactive Plot UI Output                         ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
   # -------- START  Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) -------
   
   # Render plot controls here.
@@ -459,6 +463,10 @@ server <- function(input, output, session) {
   
   
   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                          Reactive Plot Rendering                         ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
   # -------START Column 1: Inside Box 1: Row 3 (Plot Display) --------
   
   # This is where we update the plot functions based on the selection of datasets.
@@ -510,5 +518,245 @@ server <- function(input, output, session) {
     # Output plot.
     plot
   }) # -------END Column 1: Inside Box 1: Row 3 (Plot Display) --------
+
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                       Summary Statistics Reactive UI                     ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+# START Summary Stats UI 
+output$summary_stats <- renderUI({
+  
+  # Required dataset for UI output
+  req(input$dataset_selector)
+  
+  # Switch function containing UI properties for each dataset
+  switch(input$dataset_selector,
+         
+         
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         ##  ~ Monthly Water Outlook  ----
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         
+         # START Monthly Water Summary Stats 
+         "monthly_water_outlook" = tagList(
+           
+           # First row containing title & Info Button 
+           tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_summary",
+               title = "Information",
+               content = "Displaying the summary stats.",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Summary Statistics", style = "text-align: center;")
+             
+             
+           ), # END First row
+           
+           # Second row containing sub categories Value, # months
+           fluidRow(
+             
+             # Dividing into thirds, first is empty column
+             column(4),
+             
+             # Second column: Value(Acre-Feet)
+             column(4, h4("Value (Acre-Feet)")),
+             
+             # Third column: Number of Months
+             column(4, h4("Number of Months"))
+           ),
+           
+           # Third row containing shortage/surplus values & # months
+           fluidRow(
+             
+             # First column: shortage/surplus title
+             column(4, h4("Shortage/Surplus")),
+             
+             # Second column: The actual Value in acre-feet
+             column(4),
+             
+             # Third column: Number of months data present for shortage/surplus
+             column(4)
+             
+           ),
+           
+           # Fourth row containing supply augmentation values & # months
+           fluidRow(
+             
+             # First column: supply augmentation title
+             column(4, h4("Supply Augmentation")),
+             
+             # Second column: The actual value in acre-feet
+             column(4),
+             
+             # Third column: Number of months data present for agumentation
+             column(4)
+           ),
+           
+           # Fifth row containing demand reduction values & # months
+           fluidRow(
+             
+             # First column: demand reduction title
+             column(4, h4("Demand Reduction")),
+             
+             # Second column: The actual value in acre-feet
+             column(4),
+             
+             # Third column: Number of months data present for reduction
+             column(4)
+             
+           )
+           
+           
+         ), # END Monthly Water  
+         
+         
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         ##  ~ Five Year Outlook  ----
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         
+         # START Five Year Summary Stats
+         "five_year_outlook" = tagList(
+           
+           # First row containing title
+           tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_summary",
+               title = "Information",
+               content = "Displaying the summary stats.",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Summary Statistics", style = "text-align: center;")
+             
+           ), # END first row
+           
+           # Second Row containing total use & supply
+           fluidRow(
+             
+             # First column: total use
+             column(6,
+                    h4("Total Use (Acre-Feet)")
+             ),
+             
+             # Second column: total supply
+             column(6,
+                    h4("Total Supply (Acre-Feet)")
+             )
+             
+           ), # END Second Row
+           
+           # Third row containing total reduction & augmentation
+           fluidRow(
+             
+             # First column: total reduction
+             column(6,
+                    h4("Total Reduction (Acre-Feet)")
+             ),
+             
+             # Second column: total augmentation 
+             column(6,
+                    h4("Total Augmentation (Acre-Feet)")
+             )
+             
+           )
+           
+         ), # END Five Year
+         
+         
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~
+         ##  ~ Actual Shortage  ----
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~
+         
+         # START Actual Shortage Summary Stats
+         "actual_shortage" = tagList(
+           
+           # First row containing title
+           tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_summary",
+               title = "Information",
+               content = "Displaying the summary stats.",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Summary Statistics", style = "text-align: center;")
+             
+           )
+           
+         ), # END Actual Shortage
+         
+         
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         ##  ~ Historical Production  ----
+         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         
+         # START Historical Production Summary Stats
+         "historical_production" = tagList(
+           
+           # First row containing title
+           tagList(
+             
+             # Info button icon
+             div(
+               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             
+             # Info button information
+             bsPopover(
+               id = "info_summary",
+               title = "Information",
+               content = "Displaying the summary stats.",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             ),
+             
+             # Title after info button
+             h3("Summary Statistics", style = "text-align: center;")
+             
+           )
+           
+         ) # END Historical Production
+         )
+})
+  
+
 }
 
