@@ -184,6 +184,7 @@ ui <- fluidPage(
   # Row for the second half of the page
   fluidRow(
     style = "margin-top: 15px;",  # spacing from top row
+
     
     column(12,
            style = "display: flex; align-items: stretch;",
