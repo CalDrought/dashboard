@@ -90,25 +90,22 @@ server <- function(input, output, session) {
     left_join(supplier_data, by = "org_id")  # Merge in supplier names
   
   districts_with_data <- districts_with_data |>
-    mutate(name_label = paste0(supplier_name.y, " - ", water_syst), .before = objectid_1)
+    mutate(name_pwsid_label = paste0(supplier_name.y, " - ", water_syst), .before = objectid_1)
+  
+  districts_with_data <- districts_with_data |>
+    mutate(name_org_label = paste0(supplier_name.y, " - ", org_id), .before = objectid_1)
   
   #------------------------------------------------
-  # Filter your data reactively based on water source selection.
+  # Search Bar Code
   #------------------------------------------------
-  filtered_source_geo <- reactive({
+  
+  # Updates the ORG_ID's & names from our districts. 
+  observeEvent(input$dataset_selector, {
+    df <- water_data[[input$dataset_selector]]
+    org_names <- sort(unique(districts_with_data$name_org_label))
     
-    # Starting with our spatial data coordinates we set to crs = 4269.
-    data <- source_geo 
-    colnames(data)
-    
-    # If the user has picked facility types, filter by them.
-    if (!is.null(input$facility_type) && length(input$facility_type) > 0) {
-      data <- data |> 
-        filter(toTitleCase(.data$source_facility_type) %in% input$facility_type)
-    } else{
-      data <- data[0, ] # Nothing by default.
-    }
-    data
+    updateSelectizeInput(session, "search_bar",
+                         choices  = org_names)
   })
   
   #------------------------------------------------
@@ -129,7 +126,13 @@ server <- function(input, output, session) {
               palette = "Reds", 
               style = "cat",
               labels = c("0", "1", "2", "3", "4")) +
-      tm_borders()
+      tm_borders() + 
+      
+      # move the legend into the bottom right.
+      tm_view(
+      view.legend.position  = c("right", "bottom"),   # moves the legend to bottom right.
+      control.position = c("left", "bottom")    # moves the layer picker there too.
+    )
     
     base_map
   })

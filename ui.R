@@ -25,6 +25,17 @@ ui <- fluidPage(
   
   # Define CSS for two different button states.
   tags$style("
+    /* kill the arrow for this one control */
+    #search_bar .selectize-input::after {
+      display: none !important;
+    }
+    
+    /* Rounded search box */
+    #search_bar {
+      border-radius: 12px !important;
+      padding-right: 32px !important;
+    }
+  
     /* Defualt Facility Type action button style */
     #toggle_facility_type.btn-toggle-off {
       background-color: #f0f0f0 !important;
@@ -135,27 +146,47 @@ ui <- fluidPage(
                   column(12,
                          style = "padding: 0; margin: 0; border: 1px double black;", # Remove padding and marging so plot is snug.
                          
-                         tmapOutput("shortage_map", height = "100%"), # height 100% to make our tmap fill the vertical space in the box.
-                         
-                         #div(selectInput("org_id", "Select Org ID", choices = NULL)),
-                         
-                         # add info-button using bsPopover
                          div(
-                           style = "position: absolute; top: 10px; right: 10px;",
-                           tags$span(actionButton("info_map", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                         ),
-                         
-                         # add popover content
-                         bsPopover(
-                           id = "info_map",
-                           title = "Information",
-                           content = "Choose a water district/Org ID by either clicking an area on the map or typing in the search bar.",
-                           placement = "right",
-                           trigger = "hover",
-                           options = list(container = "body")
+                           style = "position: relative; width: 100%; height: 100%",
+                           
+                           tmapOutput("shortage_map", height = "100%"), # height 100% to make our tmap fill the vertical space in the box.
+                           # overlayed textbox in the top‑left corner
+                           div(
+                           style = "position: absolute; top: 10px; left: 55px; width: calc(100% - 100px)",
+                           selectizeInput(
+                             inputId = "search_bar", NULL,
+                             choices = NULL,
+                             width = "100%",
+                             selected  = character(0),
+                             options   = list(
+                               placeholder = "Search Districts by Org ID")
+                             ),
+                           tags$i(
+                             class = "fa fa-search",
+                             style = "position: absolute; right: 12px; top: 20%; pointer-events: none; color: #888; z-index: 1000;"
+                           )
+                           ),
+                           
+                           #div(selectInput("org_id", "Select Org ID", choices = NULL)),
+                             
+                           # add info-button using bsPopover
+                           div(
+                             style = "position: absolute; top: 10px; right: 10px;",
+                             tags$span(actionButton("info_map", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                             ),
+                             
+                           # add popover content
+                           bsPopover(
+                             id = "info_map",
+                             title = "Information",
+                             content = "Choose a water district/Org ID by either clicking an area on the map or typing in the search bar.",
+                             placement = "right",
+                             trigger = "hover",
+                             options = list(container = "body")
+                             ),
+                           ),
                          ),
                   ),
-           ),
            
            #### ---- Top-Right: This column function represents the left-hand side with our filter options for the tma ---- ####
            column(2,
