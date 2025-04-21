@@ -78,49 +78,55 @@ ui <- fluidPage(
     # Nesting main `column()` body into parent column to add padding on all sides +15px. 
     # Also forcing children to expand to fill parents objects size.
     column(12, 
-           style = "display: flex; align-items: strech;",
+           style = "display: flex; align-items: stretch;",
            
-           # Top-Left: Water Shortage Level Graph.
+           #### ---- Top-Left: Water Shortage Level Graph --- #### 
            column(5,
                   style = "border: 1px double black; padding-top: 15px;",
                   
-                  # add info-button using bsPopover
-                  div(
-                    style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                    tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                  ),
-                  
-                  # add popover content
-                  bsPopover(
-                    id = "info_graph",
-                    title = "Information",
-                    content = "To generate the graph, select a water district/Org ID and specify the desired date range.",
-                    placement = "right",
-                    trigger = "hover",
-                    options = list(container = "body")
-                  ),
-                  
+                  # START First row containing dataset picker and info-button
                   fluidRow(
-                #    style = "border: 1px double black;",
                     
-                    # PICKING THE DATASET
-                    column(12,
+                    # Dataset selector
+                    column(11,
                            style = "display: flex;",
-                           selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%"))
-                  ),
+                           selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%")),
+                    
+                    # Info Button
+                    column(1,
+                           
+                           # add info-button using bsPopover
+                           div(
+                             style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                             tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                           ),
+                           
+                           # add popover content
+                           bsPopover(
+                             id = "info_graph",
+                             title = "Information",
+                             content = "To generate the graph, select a water district/Org ID and specify the desired date range.",
+                             placement = "right",
+                             trigger = "hover",
+                             options = list(container = "body")
+                           )
+                           )
+                    
+                  ), # END First row
+                  
                   
                   uiOutput("plot_controls"),
                   
-                  # A second fluidRow for the date range + plot
+                  # START second row for the date range + plot
                   fluidRow(
                     column(12,
                            # The existing plot output
                            plotOutput("plot_output", height = "550px")
                     )
-                  )
+                  ) # END second row
            ),
            
-           # Top-Center: Interactive Tmap.
+           #### ---- Top-Center: Interactive Tmap ---- #### 
            column(5,
                   style = "display: flex;",
 
@@ -151,7 +157,7 @@ ui <- fluidPage(
                   ),
            ),
            
-           # Top-Right: This column function represents the left-hand side with our filter options for the tmap.
+           #### ---- Top-Right: This column function represents the left-hand side with our filter options for the tma ---- ####
            column(2,
                   style = "border: 1px double black;",
                   
@@ -175,60 +181,53 @@ ui <- fluidPage(
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   
-  # Summary Stats Section
+  # Row for the second half of the page
   fluidRow(
-    style = "margin-top: 15px; margin-bottom: 15px; padding: 0px;",
-    column(5, 
-           
-           # --- START Bottom Left Panel --- # 
-          
-             # --- START Info Button --- #
-             div(style = "height: 300px; border: 1px double black; margin-right: -16px;",
-                 # add info-button using bsPopover
-                 div(
-                   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                   tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                 ),
-                 
-                 # add popover content
-                 bsPopover(
-                   id = "info_summary",
-                   title = "Information",
-                   content = "Displaying the summary stats.",
-                   placement = "right",
-                   trigger = "hover",
-                   options = list(container = "body")
-                 ),
-             ), # --- END Info Button --- # 
-             
-            
-           
-           ), # --- END Bottom Left Panel --- # 
+    style = "margin-top: 15px;",  # spacing from top row
     
-    
-    # NA Values Section 
-    column(7,
+    column(12,
+           style = "display: flex; align-items: stretch;",
            
-           # --- START Info Button --- #
-           div(style = "height: 300px; border: 1px double black; margin: 1px;",
-               # add info-button using bsPopover
-               div(
-                 style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                 tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-               ),
-               
-               # add popover content
-               bsPopover(
-                 id = "info_NA",
-                 title = "Information",
-                 content = "Displaying the missing information.",
-                 placement = "left",
-                 trigger = "hover",
-                 options = list(container = "body")
-               ),
-           ), # --- END Info Button --- # 
+           #### ---- Bottom-Left: Summary Stats Section ---- ####
+           column(5, 
+                  style = "border: 1px double black; padding: 10px; margin-right: 15px; height: 300px;",  # adds spacing between cols
+                  
+                  # div(
+                  #   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                  #   tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                  # ),
+                  # 
+                  # bsPopover(
+                  #   id = "info_summary",
+                  #   title = "Information",
+                  #   content = "Displaying the summary stats.",
+                  #   placement = "right",
+                  #   trigger = "hover",
+                  #   options = list(container = "body")
+                  # ),
+                  uiOutput("summary_stats")
+           ),
            
-           
+           #### ---- Bottom-Right: NA Values Section ---- #### 
+           column(7,
+                  style = "border: 1px double black; padding: 10px; height: 300px;",
+                  
+                  div(
+                    style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                    tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                  ),
+                  
+                  bsPopover(
+                    id = "info_NA",
+                    title = "Information",
+                    content = "Displaying the missing information.",
+                    placement = "left",
+                    trigger = "hover",
+                    options = list(container = "body")
+                  )
+           )
     )
   )
+  
+  
 )
