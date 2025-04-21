@@ -213,19 +213,21 @@ ui <- fluidPage(
            column(7,
                   style = "border: 1px double black; padding: 10px; height: 300px;",
                   
-                  div(
-                    style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                    tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                  ),
+                  uiOutput("na_values")
                   
-                  bsPopover(
-                    id = "info_NA",
-                    title = "Information",
-                    content = "Displaying the missing information.",
-                    placement = "left",
-                    trigger = "hover",
-                    options = list(container = "body")
-                  )
+                  # div(
+                  #   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                  #   tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                  # ),
+                  # 
+                  # bsPopover(
+                  #   id = "info_NA",
+                  #   title = "Information",
+                  #   content = "Displaying the missing information.",
+                  #   placement = "left",
+                  #   trigger = "hover",
+                  #   options = list(container = "body")
+                  #)
            )
     )
   )
