@@ -25,15 +25,16 @@ ui <- fluidPage(
   
   # Define CSS for two different button states.
   tags$style("
-    /* kill the arrow for this one control */
-    #search_bar .selectize-input::after {
-      display: none !important;
-    }
-    
     /* Rounded search box */
-    #search_bar {
-      border-radius: 12px !important;
-      padding-right: 32px !important;
+    #search_bar + .selectize-control .selectize-input {
+      border-radius: 15px !important;
+      background: white;
+      padding-right: 12px;      
+    }
+      
+    /* Hide the default dropdown icon */
+    #search_bar + .selectize-control.single .selectize-input::after {
+      content: none !important;
     }
   
     /* Defualt Facility Type action button style */
@@ -154,7 +155,8 @@ ui <- fluidPage(
                            div(
                            style = "position: absolute; top: 10px; left: 55px; width: calc(100% - 100px)",
                            selectizeInput(
-                             inputId = "search_bar", NULL,
+                             inputId = "search_bar", 
+                             label = NULL,
                              choices = NULL,
                              width = "100%",
                              selected  = character(0),
@@ -163,7 +165,7 @@ ui <- fluidPage(
                              ),
                            tags$i(
                              class = "fa fa-search",
-                             style = "position: absolute; right: 12px; top: 20%; pointer-events: none; color: #888; z-index: 1000;"
+                             style = "position: absolute; right: 12px; top: 20%; pointer-events: none; color: #888; z-index: 2;"
                            )
                            ),
                            
