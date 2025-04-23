@@ -105,10 +105,10 @@ server <- function(input, output, session) {
     org_names <- sort(unique(districts_with_data$name_org_label))
     
     updateSelectizeInput(session, "search_bar",
-                         choices  = org_names)
+                         choices  = org_names, selected = character(0))
   })
   
-  #------------------------------------------------
+  #-----------T-------------------------------------
   # Render Tmap of California
   #------------------------------------------------
   
