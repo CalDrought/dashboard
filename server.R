@@ -19,7 +19,7 @@ library(bslib)
 library(shinyWidgets)
 
 source("data_cleaning.R") # Load in data once.
-source("dashboard_functions.R") # Load dashboard plot functions.
+source("functions/dashboard_functions.R") # Load dashboard plot functions.
 
 # Subset our list of datasets for `source_name` data.
 source_name <- water_data$source_name

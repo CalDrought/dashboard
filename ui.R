@@ -93,7 +93,7 @@ ui <- fluidPage(
            style = "display: flex; align-items: stretch;",
            
            #### ---- Top-Left: Water Shortage Level Graph --- #### 
-           column(5,
+           column(7,
                   style = "border: 1px double black; padding-top: 15px;",
                   
                   # START First row containing dataset picker and info-button
@@ -122,7 +122,7 @@ ui <- fluidPage(
                              trigger = "hover",
                              options = list(container = "body")
                            )
-                           )
+                    )
                     
                   ), # END First row
                   
@@ -140,12 +140,12 @@ ui <- fluidPage(
            
            #### ---- Top-Center: Interactive Tmap ---- #### 
            column(5,
-                  style = "display: flex;",
-
+                  style = "display: flex; padding-right: 0px;",
+                  
                   # Columns have an default padding of 15px therefore 12/12 
                   # won't take up the full space of the parent column.
                   column(12,
-                         style = "padding: 0; margin: 0; border: 1px double black;", # Remove padding and marging so plot is snug.
+                         style = "padding: 0; border: 1px double black;", # Remove padding and marging so plot is snug.
                          
                          div(
                            style = "position: relative; width: 100%; height: 100%",
@@ -153,30 +153,30 @@ ui <- fluidPage(
                            tmapOutput("shortage_map", height = "100%"), # height 100% to make our tmap fill the vertical space in the box.
                            # overlayed textbox in the top‑left corner
                            div(
-                           style = "position: absolute; top: 10px; left: 55px; width: calc(100% - 100px)",
-                           selectizeInput(
-                             inputId = "search_bar", 
-                             label = NULL,
-                             choices = NULL,
-                             width = "100%",
-                             selected  = character(0),
-                             options   = list(
-                               placeholder = "Search Districts by Org ID")
+                             style = "position: absolute; top: 10px; left: 55px; width: calc(100% - 100px)",
+                             selectizeInput(
+                               inputId = "search_bar", 
+                               label = NULL,
+                               choices = NULL,
+                               width = "100%",
+                               selected  = character(0),
+                               options   = list(
+                                 placeholder = "Search Districts by Org ID")
                              ),
-                           tags$i(
-                             class = "fa fa-search",
-                             style = "position: absolute; right: 12px; top: 20%; pointer-events: none; color: #888; z-index: 2;"
-                           )
+                             tags$i(
+                               class = "fa fa-search",
+                               style = "position: absolute; right: 12px; top: 20%; pointer-events: none; color: #888; z-index: 2;"
+                             )
                            ),
                            
                            #div(selectInput("org_id", "Select Org ID", choices = NULL)),
-                             
+                           
                            # add info-button using bsPopover
                            div(
                              style = "position: absolute; top: 10px; right: 10px;",
                              tags$span(actionButton("info_map", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                             ),
-                             
+                           ),
+                           
                            # add popover content
                            bsPopover(
                              id = "info_map",
@@ -185,25 +185,25 @@ ui <- fluidPage(
                              placement = "right",
                              trigger = "hover",
                              options = list(container = "body")
-                             ),
                            ),
                          ),
                   ),
+           ),
            
            #### ---- Top-Right: This column function represents the left-hand side with our filter options for the tma ---- ####
-           column(2,
-                  style = "border: 1px double black;",
-                  
-                  div(style = "padding: 10px;",
-                      actionButton("toggle_shortage_year", "Shortage Year", class = "btn-toggle-off"),
-                      div(style = "padding: 15px",
-                          conditionalPanel(
-                            condition = "input.toggle_shortage_year %% 2 == 1",
-                            checkboxGroupInput("shortage_year", "Select Shortage Year:", 
-                                               choices = unique(format(as.Date(water_data$actual_shortage$start_date, format = "%Y-%m-%d"), "%Y"))))
-                      )
-                  ),
-           ),
+           # column(2,
+           #        style = "border: 1px double black;",
+           #        
+           #        div(style = "padding: 10px;",
+           #            actionButton("toggle_shortage_year", "Shortage Year", class = "btn-toggle-off"),
+           #            div(style = "padding: 15px",
+           #                conditionalPanel(
+           #                  condition = "input.toggle_shortage_year %% 2 == 1",
+           #                  checkboxGroupInput("shortage_year", "Select Shortage Year:", 
+           #                                     choices = unique(format(as.Date(water_data$actual_shortage$start_date, format = "%Y-%m-%d"), "%Y"))))
+           #            )
+           #        ),
+           # ),
     )
   ),
   
@@ -217,14 +217,14 @@ ui <- fluidPage(
   # Row for the second half of the page
   fluidRow(
     style = "margin-top: 15px;",  # spacing from top row
-
+    
     
     column(12,
            style = "display: flex; align-items: stretch;",
            
            #### ---- Bottom-Left: Summary Stats Section ---- ####
-           column(5, 
-                  style = "border: 1px double black; padding: 10px; margin-right: 15px; height: 300px;",  # adds spacing between cols
+           column(7, 
+                  style = "border: 1px double black; height: 300px;",  # adds spacing between cols
                   
                   # div(
                   #   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
@@ -243,8 +243,8 @@ ui <- fluidPage(
            ),
            
            #### ---- Bottom-Right: NA Values Section ---- #### 
-           column(7,
-                  style = "border: 1px double black; padding: 10px; height: 300px;",
+           column(5,
+                  style = "border: 1px double black; height: 300px;",
                   
                   uiOutput("na_values")
                   
