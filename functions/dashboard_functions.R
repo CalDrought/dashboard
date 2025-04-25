@@ -63,16 +63,23 @@ five_year_plot <- function(id, year) {
     geom_col(position = "dodge") + # dodge lines up bars side by side
     
     # Labels
-    labs(x = "Forecast Date",
-         y = "Acre-Feet",
+    labs(x = "Forecast Year",
+         y = "Quantity (Acre-Feet)",
          fill = element_blank()) + # Get's rid of the legend
     
     # Add axis breaks
     scale_x_continuous(breaks = c(2021:2025)) +
     
     # Manually choose bar colors   
-    scale_fill_manual(values = c("coral", "steelblue", "forestgreen", "violetred")) + 
-    theme_minimal()
+    scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73", "#D55E00" )) + 
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(size = rel(2), color = "black"),
+      axis.text.y = element_text(size = rel(2), color = "black"),
+      axis.title = element_text(size = rel(2)),
+      legend.text = element_text(size = rel(1.3))
+    )
+  
   
 }
 
@@ -155,6 +162,7 @@ hist_filt_function <- function(id, date){
     # Create new forecast year column
     mutate(year_month = format(start_date, "%Y-%m"))  
   
+  
   hist_total <- hist_filter %>% 
     # Group by date 
     group_by(start_date) %>% 
@@ -180,7 +188,14 @@ hist_filt_function <- function(id, date){
     ) %>% 
     ungroup() %>% 
     # Filter for a given year range
-    filter(year_month %in% date)
+    filter(year_month %in% date) %>% 
+    
+    # Capitalizing Observations in the following columns for a cleaner plot output
+    mutate(water_produced_or_delivered = fct_recode(water_produced_or_delivered,
+                                                    "Water Delivered" = "water delivered",
+                                                    "Water Produced" = "water produced"),
+           water_type = fct_relabel(water_type, ~ str_replace_all(., "_", " ") %>% 
+                                      str_to_title()))
 } 
 
 
@@ -188,20 +203,52 @@ hist_filt_function <- function(id, date){
 ##                    Historical Production Plot Function                   ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-hist_plot_function <- function(id, date, type){
+hist_plot_function <- function(id, date, water_types){
+  
+  pal <- c(
+    "Total" = "#000000",
+    "Single-Family Residential" = "#004949",
+    "Commercial/Institutional" = "#009292",
+    "Industrial" = "#ff6db6",
+    "Landscape Irrigation" = "#ffb6db",
+    "Multi-Family Residential" = "#490092",
+    "Other" = "#006ddb",
+    "Other Pws" = "#b66dff",
+    "Non-Potable Water Sold To Another Pws" = "#6db6ff",
+    "Agriculture" = "#b6dbff",
+    "Recycled" = "#920000",
+    "Surface Water" = "#924900",
+    "Groundwater Wells" = "#db6d00",
+    "Non-Potable (Total Excluded Recycled)" = "#24ff24",
+    "Purchased Or Received From Another Pws" = "#ffff6d",
+    "Sold To Another Pws" = "#c10020"
+  )
   
   # Use filtered historical production data
   hist_plot <- hist_filt_function(id, date ) %>% 
     
     # filter for water type
-    filter(water_type %in% type) %>% 
+    filter(water_type %in% water_types) %>% 
     
     # Plot filtered data 
-    ggplot(aes(x = start_date, y = quantity_acre_feet, color = water_type, linetype = water_produced_or_delivered)) +
-    geom_line() +
+    ggplot(aes(x = start_date, y = quantity_acre_feet, 
+               color = water_type, linetype = water_produced_or_delivered)) +
+    scale_color_manual(values = pal) +
+    
+    geom_line(linewidth = 1.2) +
+
     labs(x = "Date",
-         y = "Quantity (Acre-Feet)") +
-    theme_minimal()
+         y = "Quantity (Acre-Feet)",
+         color = "Water Type",
+         linetype = "Produced or Delivered") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(size = rel(1.5), color = "black"),
+      axis.text.y = element_text(size = rel(1.7), color = "black"),
+      axis.title = element_text(size = rel(2)),
+      legend.title = element_text(size = rel(1.5)),
+      legend.text = element_text(size = rel(1.2))
+    )
   
   return(hist_plot)
 }
@@ -348,18 +395,32 @@ monthly_plot_function <- function(id, date){
     # Want information in one column for easier access when plotting
     pivot_longer(cols = c(shortage_surplus_acre_feet, starts_with("benefit")),
                  names_to = "use_supply_aug_red",
-                 values_to = "acre_feet") %>% 
+                 values_to = "acre_feet") %>%
     
     # Plot data 
     ggplot(aes(x = forecast_start_date, y = acre_feet, fill = use_supply_aug_red)) + 
-    geom_col(position = "dodge") +
+    geom_col(position = "stack") +
+    
+    # Format the x-axis to show month & year (e.g., "Mar 2022")
+    # scale_x_date(
+    #   date_labels = "%b %Y",
+    #   date_breaks = "1 month",
+    #   expand = c(0.01, 0.01)) +
     labs(x = "Date",
          y = "Acre-Feet",
          fill = element_blank()) +
     
     # Changing labels for graph representation 
-    scale_fill_discrete(labels = c("Demand Reduction", "Supply Augmentation", "Shortage/Surplus")) +
-    theme_minimal()
+    scale_fill_manual(labels = c("Demand Reduction", "Supply Augmentation", "Shortage/Surplus"),
+                      values = c("#D55E00", "#009E73", "#56B4E9")) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(size = rel(1.2), color = "black", angle = 45, hjust = 1),
+      axis.text.y = element_text(size = rel(1.5), color = "black"),
+      axis.title = element_text(size = rel(1.5)),
+      legend.text = element_text(size = rel(1)),
+      
+    )
   
   return(monthly_plot)
   
@@ -493,6 +554,10 @@ actual_plot_function <- function(id, date){
       date_breaks = "1 month",
       expand = c(0.01, 0.01)) +
     
+    scale_y_continuous(
+      breaks = c(1,2,3,4,5,6)
+    ) +
+    
     labs(x = "Month",
          y = "Shortage Level") +
     
@@ -500,9 +565,10 @@ actual_plot_function <- function(id, date){
     theme_minimal(base_size = 13) +
     
     theme(
-      axis.text.x = element_text(angle = 45, hjust = 1),
-      plot.title = element_text(face = "bold"),
-      plot.subtitle = element_text(size = 11)
+      axis.text.x = element_text(size = rel(1.6), color = "black", angle = 45, hjust = 1),
+      axis.text.y = element_text(size = rel(1.5), color = "black"),
+      axis.title = element_text(size = rel(1.5)),
+      legend.text = element_text(size = rel(1.2))
     )
   
   

@@ -13,6 +13,7 @@ library(tools)
 library(shinyjs)
 library(spnaf)
 library(shinyBS)
+library(paletteer)
 source("data_cleaning.R") # Load in data once.
 
 ui <- fluidPage(
