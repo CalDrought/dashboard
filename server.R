@@ -17,6 +17,7 @@ library(dplyr)
 library(tools)
 library(bslib)
 library(shinyWidgets)
+library(paletteer)
 
 source("data_cleaning.R") # Load in data once.
 source("functions/dashboard_functions.R") # Load dashboard plot functions.
@@ -250,6 +251,7 @@ server <- function(input, output, session) {
   ##                          Reactive Plot UI Output                         ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  
   # -------- START  Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) -------
   
   # Render plot controls here.
@@ -387,15 +389,6 @@ server <- function(input, output, session) {
            
            
            
-           ##~~~~~~~~~~~~~~~~~~~~~
-           ##  ~ Source Name  ----
-           ##~~~~~~~~~~~~~~~~~~~~~
-           "source_name" = tagList(
-             
-             
-             
-           ), # END SOURCE NAME WIDGET 
-           
            
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            ##  ~ Historical Production Plot  ----
@@ -442,25 +435,39 @@ server <- function(input, output, session) {
              # Second row for water type selection
              fluidRow(
                
-               column(12,
+               column(6,
                       
                       # Selecting water type
-                      selectInput("type", "Selct Type", c("agriculture", "surface water", "industrial", 
-                                                          "other", "single-family residential", "commercial/institutional",
-                                                          "landscape irrigation", "multi-family residential", 
-                                                          "other pws", "recycled", "sold to another pws", "groundwater wells",
-                                                          "non-potable (total excluded recycled)", "purchased or received from another pws",
-                                                          "non-potable water sold to another pws"),
+                      selectInput("delivered_type", "Select Deliver Type", c("Agriculture",
+                                                          "Single-Family Residential",
+                                                          "Commercial/Institutional",
+                                                          "Industrial",
+                                                          "Landscape Irrigation",
+                                                          "Multi-Family Residential",
+                                                          "Other",
+                                                          "Other Pws",
+                                                          "Total"),
                                   
                                   multiple = TRUE, # Able to select multiple "Types"
-                                  width = "100%")) # Selection bar covers all of the fitted area
+                                  width = "100%")),  # Selection bar covers all of the fitted area
+               
+               column(6,
+                      
+                      # Selecting Production Water Type
+                      selectInput("produced_type", "Select Produced Type",
+                                  c("Recycled", "Surface Water", "Groundwater Wells", 
+                                    "Non-Potable (Total Excluded Recycled)",  "Purchased Or Received From Another Pws",
+                                    "Sold To Another Pws","Non-Potable Water Sold To Another Pws", "Total"
+                                    ),
+                                  multiple = TRUE,
+                                  width = "100%"))
                
                
              ) # END SECOND ROW Water type selection
              
              
              
-           ), # END HISTORICAL PRODUCTION WIDGET
+           ) # END HISTORICAL PRODUCTION WIDGET
     )
   }) # -------- END Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) -------
   
@@ -469,6 +476,31 @@ server <- function(input, output, session) {
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                          Reactive Plot Rendering                         ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  combined_water_types <- reactive({
+    delivered <- input$delivered_type
+    produced  <- input$produced_type
+    
+    # If both are empty, return NULL
+    if ((is.null(delivered) || length(delivered) == 0) && 
+        (is.null(produced)  || length(produced) == 0)) {
+      return(NULL)
+    }
+    
+    # If only delivered selected
+    if (length(delivered) > 0 && (is.null(produced) || length(produced) == 0)) {
+      return(delivered)
+    }
+    
+    # If only produced selected
+    if (length(produced) > 0 && (is.null(delivered) || length(delivered) == 0)) {
+      return(produced)
+    }
+    
+    # If both are selected
+    return(c(delivered, produced))
+  })
+  
   
   # -------START Column 1: Inside Box 1: Row 3 (Plot Display) --------
   
@@ -485,7 +517,7 @@ server <- function(input, output, session) {
     
     # Extra Requirement for Historical_production
     if (selected_name == "historical_production"){
-      req(input$type)
+      req(combined_water_types())
     }
     
     # Filtering the dates to the proper input format. 
@@ -501,6 +533,7 @@ server <- function(input, output, session) {
     print(c(input$date_picker_start, input$date_picker_end))
     print(c(start_ym, end_ym))
     
+    water_types <- combined_water_types()
     
     # Switch statement to change function based on dataset.
     plot <- switch(selected_name,
@@ -512,7 +545,7 @@ server <- function(input, output, session) {
                    "five_year_outlook" = five_year_plot(input$org_id, c(start_y, end_y)),
                    
                    # --- Historical Production Plot Output Function --- # 
-                   "historical_production" = hist_plot_function(input$org_id, c(start_ym, end_ym), input$type),
+                   "historical_production" = hist_plot_function(input$org_id, c(start_ym, end_ym), water_types),
                   
                   # --- Actual Water Shortage Plot Output Function --- # 
                    "actual_shortage" = actual_plot_function(input$org_id, c(start_ym, end_ym))
