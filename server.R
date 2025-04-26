@@ -521,7 +521,7 @@ server <- function(input, output, session) {
     }
     
     # Filtering the dates to the proper input format. 
-    # This is for most datasets as they are displayed in Year, month
+    # Format the date selection from the date picker to ensure consistency across all datasets
     start_ym <- format(as.Date(input$date_picker_start), "%Y-%m")
     end_ym   <- format(as.Date(input$date_picker_end),   "%Y-%m")
     
@@ -535,7 +535,7 @@ server <- function(input, output, session) {
     
     water_types <- combined_water_types()
     
-    # Switch statement to change function based on dataset.
+    # Switch statement to change function based on dataset
     plot <- switch(selected_name,
                    
                    # --- Monthly Water Plot output Function --- #
@@ -551,7 +551,7 @@ server <- function(input, output, session) {
                    "actual_shortage" = actual_plot_function(input$org_id, c(start_ym, end_ym))
     )
     
-    # Output plot.
+    # Output plot
     plot
   }) # -------END Column 1: Inside Box 1: Row 3 (Plot Display) --------
 
