@@ -88,25 +88,65 @@ server <- function(input, output, session) {
   districts_with_data <- district_shape |>
     inner_join(water_data$actual_shortage, by = c("water_syst" = "pwsid")) |>
     filter(end_date == max(end_date, na.rm = TRUE)) |>
-    left_join(supplier_data, by = "org_id")  # Merge in supplier names
+    left_join(supplier_data, by = "org_id") # Merge in supplier names
   
+  # Create `<name> - <pwsid>` label for Tmap boundary labels.
   districts_with_data <- districts_with_data |>
     mutate(name_pwsid_label = paste0(supplier_name.y, " - ", water_syst), .before = objectid_1)
-  
+
+  # Create `<name> - <org_id>` label for search labels.
   districts_with_data <- districts_with_data |>
-    mutate(name_org_label = paste0(supplier_name.y, " - ", org_id), .before = objectid_1)
+    mutate(name_org_label = paste0(supplier_name.y, " - ", org_id), .before = objectid_1) |>
+    distinct(org_id, water_syst, .keep_all = TRUE) # make sure duplicate observations aren't causing search issues.
   
   #------------------------------------------------
   # Search Bar Code
   #------------------------------------------------
   
-  # Updates the ORG_ID's & names from our districts. 
-  observeEvent(input$dataset_selector, {
-    df <- water_data[[input$dataset_selector]]
-    org_names <- sort(unique(districts_with_data$name_org_label))
+  # ----- Fill in via on-click of our Tmap -----
+  observeEvent(input$shortage_map_shape_click, {
     
-    updateSelectizeInput(session, "search_bar",
-                         choices  = org_names, selected = character(0))
+    # map selection id's are the labels we provided for each location with 
+    # periods replacing spaces & special characters.
+    raw_id <- input$shortage_map_shape_click$id
+    
+    # fixing the incorrectly formatted labels back to our format so we can
+    # access the corresponding observational data (aka grab the org_id).
+    formatted_label <- raw_id %>%
+      str_replace_all("\\.\\.\\.", " - ") %>%
+      str_replace_all("\\.", " ")
+    
+    # grabbing the full row observations based on the searched name+org label.
+    matched_row <- districts_with_data %>%
+      filter(name_pwsid_label == formatted_label) %>%
+      slice(1)
+    
+    # grab the org_id from the row observation from our search.
+    matched_org_id <- matched_row$org_id
+    
+    # fill in search bar based on selection.
+    if (!is.null(matched_org_id) && length(matched_org_id) > 0) {
+      updateSelectizeInput(session, "search_bar", selected = matched_org_id)
+    }
+  })
+  
+  # ----- Fill in via search -----
+  observe({
+    
+    # Linking org_id+name labels to org_id values.
+    org_choices <- setNames(districts_with_data$org_id, districts_with_data$name_org_label)
+    
+    # Saving current selection.
+    current_selection <- isolate(input$search_bar)
+    
+    # If the current selection is still valid keep it else reset.
+    if (!is.null(current_selection) && current_selection %in% org_choices) {
+      updateSelectizeInput(session, "search_bar",
+                           choices = org_choices, selected = current_selection)
+    } else {
+      updateSelectizeInput(session, "search_bar",
+                           choices = org_choices, selected = character(0))
+    }
   })
   
   #-----------T-------------------------------------
@@ -117,8 +157,6 @@ server <- function(input, output, session) {
   output$shortage_map <- renderTmap({
     tmap_mode("view")  # interactive mode.
     
-    # tmap_options(check.and.fix = TRUE)
-    
     # Build base layers.
     base_map <- 
       tm_shape(districts_with_data) +
@@ -126,7 +164,9 @@ server <- function(input, output, session) {
               title = "Shortage Level", 
               palette = "Reds", 
               style = "cat",
-              labels = c("0", "1", "2", "3", "4")) +
+              labels = c("0", "1", "2", "3", "4"),
+              popup.vars = FALSE,
+              id = "name_pwsid_label") +
       tm_borders() + 
       
       # move the legend into the bottom right.
@@ -191,14 +231,9 @@ server <- function(input, output, session) {
     )
   })
   
-  # Whenever the dataset changes, reset org_id + date or year pickers
+  # Whenever the dataset changes, reset date or year pickers
   observeEvent(input$dataset_selector, {
     df <- water_data[[input$dataset_selector]]
-    orgs <- sort(unique(df$org_id))
-    
-    updateSelectInput(session, "org_id",
-                      choices  = orgs,
-                      selected = orgs[1])
     
     # date‐based datasets
     if (input$dataset_selector %in% 
@@ -270,11 +305,6 @@ server <- function(input, output, session) {
            # Actual Shortage only uses org_id and date (as [start, end])
            "actual_shortage" = fluidRow(
              
-             # Org_id selection drop down
-             column(4,
-                    selectInput("org_id", "Select Org ID", choices = NULL)
-             ),
-             
              # Month-Year end selection drop down
              column(4,
                     airDatepickerInput(
@@ -312,11 +342,6 @@ server <- function(input, output, session) {
            
            "monthly_water_outlook" = fluidRow(
              
-             # Org_id selection drop down
-             column(4,
-                    selectInput("org_id", "Select Org ID", choices = NULL)
-             ),
-             
              # Month-Year end selection drop down
              column(4,
                     airDatepickerInput(
@@ -352,12 +377,7 @@ server <- function(input, output, session) {
            ##  ~ Five Year Outlook Plot  ----
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            "five_year_outlook" = fluidRow(
-             
-             # Org_id selection drop down
-             column(4,
-                    selectInput("org_id", "Select Org ID", choices = NULL)
-             ),
-             
+
              # Year start selection drop down
              column(4,
                     airDatepickerInput(
@@ -397,11 +417,6 @@ server <- function(input, output, session) {
              
              
              fluidRow(
-               
-               # Org_id selection drop down
-               column(4,
-                      selectInput("org_id", "Select Org ID", choices = NULL)
-               ),
                
                # Month-Year end selection drop down
                column(4,
@@ -525,7 +540,7 @@ server <- function(input, output, session) {
     
     
     # Need dataset, org_id, start/end dates.
-    req(input$dataset_selector, input$org_id, input$date_picker_start, input$date_picker_end)
+    req(input$dataset_selector, input$search_bar, input$date_picker_start, input$date_picker_end)
     
     # Find dataset based on name.
     selected_name <- input$dataset_selector
@@ -555,16 +570,16 @@ server <- function(input, output, session) {
     plot <- switch(selected_name,
                    
                    # --- Monthly Water Plot output Function --- #
-                   "monthly_water_outlook" = monthly_plot_function(input$org_id, c(start_ym, end_ym)),
+                   "monthly_water_outlook" = monthly_plot_function(input$search_bar, c(start_ym, end_ym)),
                    
                    # --- Five Year Plot Output Function --- #
-                   "five_year_outlook" = five_year_plot(input$org_id, c(start_y, end_y)),
+                   "five_year_outlook" = five_year_plot(input$search_bar, c(start_y, end_y)),
                    
                    # --- Historical Production Plot Output Function --- # 
-                   "historical_production" = hist_plot_function(input$org_id, c(start_ym, end_ym), water_types),
+                   "historical_production" = hist_plot_function(input$search_bar, c(start_ym, end_ym), water_types),
                    
                    # --- Actual Water Shortage Plot Output Function --- # 
-                   "actual_shortage" = actual_plot_function(input$org_id, c(start_ym, end_ym))
+                   "actual_shortage" = actual_plot_function(input$search_bar, c(start_ym, end_ym))
     )
     
     # Output plot
@@ -676,11 +691,11 @@ server <- function(input, output, session) {
   # -- 5 yr ---
   render_five_value_box <- function(label) {
     renderValueBox({
-      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      req(input$search_bar, input$date_picker_start, input$date_picker_end)
       start_year <- year(as.Date(input$date_picker_start))
       end_year   <- year(as.Date(input$date_picker_end))
       
-      val <- five_values_function(input$org_id, c(start_year, end_year)) %>%
+      val <- five_values_function(input$search_bar, c(start_year, end_year)) %>%
         filter(use_supply_aug_red == label) %>%
         pull(total_value)
       
@@ -723,8 +738,8 @@ server <- function(input, output, session) {
   
   render_monthly_value <- function(label, color) {
     renderValueBox({
-      req(input$org_id, input$date_picker_start, input$date_picker_end)
-      val <- monthly_values_function(input$org_id, c(input$date_picker_start, input$date_picker_end)) %>%
+      req(input$search_bar, input$date_picker_start, input$date_picker_end)
+      val <- monthly_values_function(input$search_bar, c(input$date_picker_start, input$date_picker_end)) %>%
         filter(use_supply_aug_red == label) %>%
         pull(total_acre_feet)
       
@@ -738,8 +753,8 @@ server <- function(input, output, session) {
   
   render_monthly_months <- function(label, color) {
     renderValueBox({
-      req(input$org_id, input$date_picker_start, input$date_picker_end)
-      val <- monthly_months_function(input$org_id, c(input$date_picker_start, input$date_picker_end)) %>%
+      req(input$search_bar, input$date_picker_start, input$date_picker_end)
+      val <- monthly_months_function(input$search_bar, c(input$date_picker_start, input$date_picker_end)) %>%
         filter(use_supply_aug_red == label) %>%
         pull(num_months)
       
@@ -773,8 +788,8 @@ server <- function(input, output, session) {
   }
   
   output$average_shortage <- renderValueBox({
-    req(input$org_id, input$date_picker_start, input$date_picker_end)
-    df <- actual_filter_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    req(input$search_bar, input$date_picker_start, input$date_picker_end)
+    df <- actual_filter_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     avg <- mean(df$state_standard_shortage_level, na.rm = TRUE)
     
@@ -787,8 +802,8 @@ server <- function(input, output, session) {
   
   lapply(0:6, function(i) {
     output[[paste0("shortage_level_", i)]] <- renderValueBox({
-      req(input$org_id, input$date_picker_start, input$date_picker_end)
-      df <- actual_filter_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+      req(input$search_bar, input$date_picker_start, input$date_picker_end)
+      df <- actual_filter_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
       
       count <- sum(df$state_standard_shortage_level == i, na.rm = TRUE)
       
@@ -817,9 +832,9 @@ server <- function(input, output, session) {
   }
   
   output$total_produced_box <- renderValueBox({
-    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
-    df <- hist_filt_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    df <- hist_filt_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     produced_total <- df %>%
       filter(water_produced_or_delivered == "water produced") %>%
@@ -835,9 +850,9 @@ server <- function(input, output, session) {
   
   
   output$total_delivered_box <- renderValueBox({
-    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
-    df <- hist_filt_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    df <- hist_filt_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     delivered_total <- df %>%
       filter(water_produced_or_delivered == "water delivered") %>%
@@ -852,9 +867,9 @@ server <- function(input, output, session) {
   })
   
   output$hist_value_boxes <- renderUI({
-    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
-    df <- hist_filt_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    df <- hist_filt_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     selected_types <- combined_water_types()
     
