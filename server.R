@@ -131,9 +131,9 @@ server <- function(input, output, session) {
       
       # move the legend into the bottom right.
       tm_view(
-      view.legend.position  = c("right", "bottom"),   # moves the legend to bottom right.
-      control.position = c("left", "bottom")    # moves the layer picker there too.
-    )
+        view.legend.position  = c("right", "bottom"),   # moves the legend to bottom right.
+        control.position = c("left", "bottom")    # moves the layer picker there too.
+      )
     
     base_map
   })
@@ -439,14 +439,14 @@ server <- function(input, output, session) {
                       
                       # Selecting water type
                       selectInput("delivered_type", "Select Deliver Type", c("Agriculture",
-                                                          "Single-Family Residential",
-                                                          "Commercial/Institutional",
-                                                          "Industrial",
-                                                          "Landscape Irrigation",
-                                                          "Multi-Family Residential",
-                                                          "Other",
-                                                          "Other Pws",
-                                                          "Total"),
+                                                                             "Single-Family Residential",
+                                                                             "Commercial/Institutional",
+                                                                             "Industrial",
+                                                                             "Landscape Irrigation",
+                                                                             "Multi-Family Residential",
+                                                                             "Other",
+                                                                             "Other Pws",
+                                                                             "Total"),
                                   
                                   multiple = TRUE, # Able to select multiple "Types"
                                   width = "100%")),  # Selection bar covers all of the fitted area
@@ -458,7 +458,7 @@ server <- function(input, output, session) {
                                   c("Recycled", "Surface Water", "Groundwater Wells", 
                                     "Non-Potable (Total Excluded Recycled)",  "Purchased Or Received From Another Pws",
                                     "Sold To Another Pws","Non-Potable Water Sold To Another Pws", "Total"
-                                    ),
+                                  ),
                                   multiple = TRUE,
                                   width = "100%"))
                
@@ -499,6 +499,22 @@ server <- function(input, output, session) {
     
     # If both are selected
     return(c(delivered, produced))
+  })
+  
+  # to make summary stats possible with drop down as is
+  combined_water_types_filtered <- reactive({
+    types <- combined_water_types()
+    
+    # If NULL, return NULL immediately
+    if (is.null(types)) return(NULL)
+    
+    # Remove "Total" from the list
+    types <- types[types != "Total"]
+    
+    # If no types left after removing, return NULL
+    if (length(types) == 0) return(NULL)
+    
+    return(types)
   })
   
   
@@ -546,259 +562,350 @@ server <- function(input, output, session) {
                    
                    # --- Historical Production Plot Output Function --- # 
                    "historical_production" = hist_plot_function(input$org_id, c(start_ym, end_ym), water_types),
-                  
-                  # --- Actual Water Shortage Plot Output Function --- # 
+                   
+                   # --- Actual Water Shortage Plot Output Function --- # 
                    "actual_shortage" = actual_plot_function(input$org_id, c(start_ym, end_ym))
     )
     
     # Output plot
     plot
   }) # -------END Column 1: Inside Box 1: Row 3 (Plot Display) --------
-
+  
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                       Summary Statistics Reactive UI                     ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
-# START Summary Stats UI 
-output$summary_stats <- renderUI({
   
-  # Required dataset for UI output
-  req(input$dataset_selector)
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                       Summary Statistics Section                         ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  # Switch function containing UI properties for each dataset
-  switch(input$dataset_selector,
-         
-         
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         ##  ~ Monthly Water Outlook  ----
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         
-         # START Monthly Water Summary Stats 
-         "monthly_water_outlook" = tagList(
-           
-           # First row containing title & Info Button 
-           tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_summary",
-               title = "Information",
-               content = "Displaying the summary stats.",
-               placement = "right",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Summary Statistics", style = "text-align: center;")
-             
-             
-           ), # END First row
-           
-           # Second row containing sub categories Value, # months
-           fluidRow(
-             
-             # Dividing into thirds, first is empty column
-             column(4),
-             
-             # Second column: Value(Acre-Feet)
-             column(4, h4("Value (Acre-Feet)")),
-             
-             # Third column: Number of Months
-             column(4, h4("Number of Months"))
-           ),
-           
-           # Third row containing shortage/surplus values & # months
-           fluidRow(
-             
-             # First column: shortage/surplus title
-             column(4, h4("Shortage/Surplus")),
-             
-             # Second column: The actual Value in acre-feet
-             column(4),
-             
-             # Third column: Number of months data present for shortage/surplus
-             column(4)
-             
-           ),
-           
-           # Fourth row containing supply augmentation values & # months
-           fluidRow(
-             
-             # First column: supply augmentation title
-             column(4, h4("Supply Augmentation")),
-             
-             # Second column: The actual value in acre-feet
-             column(4),
-             
-             # Third column: Number of months data present for agumentation
-             column(4)
-           ),
-           
-           # Fifth row containing demand reduction values & # months
-           fluidRow(
-             
-             # First column: demand reduction title
-             column(4, h4("Demand Reduction")),
-             
-             # Second column: The actual value in acre-feet
-             column(4),
-             
-             # Third column: Number of months data present for reduction
-             column(4)
-             
-           )
-           
-           
-         ), # END Monthly Water  
-         
-         
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         ##  ~ Five Year Outlook  ----
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         
-         # START Five Year Summary Stats
-         "five_year_outlook" = tagList(
-           
-           # First row containing title
-           tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_summary",
-               title = "Information",
-               content = "Displaying the summary stats.",
-               placement = "right",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Summary Statistics", style = "text-align: center;")
-             
-           ), # END first row
-           
-           # Second Row containing total use & supply
-           fluidRow(
-             
-             # First column: total use
-             column(6,
-                    h4("Total Use (Acre-Feet)")
-             ),
-             
-             # Second column: total supply
-             column(6,
-                    h4("Total Supply (Acre-Feet)")
-             )
-             
-           ), # END Second Row
-           
-           # Third row containing total reduction & augmentation
-           fluidRow(
-             
-             # First column: total reduction
-             column(6,
-                    h4("Total Reduction (Acre-Feet)")
-             ),
-             
-             # Second column: total augmentation 
-             column(6,
-                    h4("Total Augmentation (Acre-Feet)")
-             )
-             
-           )
-           
-         ), # END Five Year
-         
-         
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~
-         ##  ~ Actual Shortage  ----
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~
-         
-         # START Actual Shortage Summary Stats
-         "actual_shortage" = tagList(
-           
-           # First row containing title
-           tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_summary",
-               title = "Information",
-               content = "Displaying the summary stats.",
-               placement = "right",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Summary Statistics", style = "text-align: center;")
-             
-           )
-           
-         ), # END Actual Shortage
-         
-         
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         ##  ~ Historical Production  ----
-         ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         
-         # START Historical Production Summary Stats
-         "historical_production" = tagList(
-           
-           # First row containing title
-           tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_summary",
-               title = "Information",
-               content = "Displaying the summary stats.",
-               placement = "right",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Summary Statistics", style = "text-align: center;")
-             
-           )
-           
-         ) # END Historical Production
-         )
-})
-
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                       Helper: Label Cleaner
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##                            NA Values Reactive UI                         ----
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+  pretty_label <- function(raw_label, water_type_context = FALSE) {
+    label <- case_when(
+      raw_label == "water_use_acre_feet" ~ "Water Use",
+      raw_label == "water_supplies_acre_feet" ~ "Water Supply",
+      raw_label == "benefit_supply_augmentation_acre_feet" ~ "Supply Augmentation",
+      raw_label == "benefit_demand_reduction_acre_feet" ~ "Demand Reduction",
+      raw_label == "shortage_surplus_acre_feet" ~ "Shortage/Surplus",
+      raw_label == "total_produced" ~ "Total Produced",
+      raw_label == "total_delivered" ~ "Total Delivered",
+      TRUE ~ str_replace_all(raw_label, "_", " ") %>% str_to_title()
+    )
+    if (water_type_context) {
+      paste0(label, " (Water in Acre-Feet)")
+    } else {
+      paste0(label, " (Acre-Feet)")
+    }
+  }
+  
+  output$summary_stats <- renderUI({
+    req(input$dataset_selector)
+    card(
+      full_screen = TRUE,
+      style = "overflow-y: auto; max-height: 290px; padding: 10px;",
+      div(
+        style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+        tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+      ),
+      bsPopover(id = "info_summary", title = "Information", content = "Displaying summary statistics for the selected dataset.", placement = "right", trigger = "hover", options = list(container = "body")),
+      div(style = "text-align: center; margin-bottom: 10px;", h3("Summary Statistics")),
+      switch(input$dataset_selector,
+             "five_year_outlook" = summary_five_year_ui(),
+             "monthly_water_outlook" = summary_monthly_ui(),
+             "actual_shortage" = summary_actual_ui(),
+             "historical_production" = summary_historical_ui()
+      )
+    )
+  })
+  
+  summary_five_year_ui <- function() {
+    tagList(
+      fluidRow(column(6, valueBoxOutput("fiveyr_use")), column(6, valueBoxOutput("fiveyr_supply"))),
+      fluidRow(column(6, valueBoxOutput("fiveyr_aug")), column(6, valueBoxOutput("fiveyr_red")))
+    )
+  }
+  
+  summary_monthly_ui <- function() {
+    tagList(
+      fluidRow(column(6, valueBoxOutput("monthly_shortage_value")), column(6, valueBoxOutput("monthly_shortage_months"))),
+      fluidRow(column(6, valueBoxOutput("monthly_aug_value")), column(6, valueBoxOutput("monthly_aug_months"))),
+      fluidRow(column(6, valueBoxOutput("monthly_red_value")), column(6, valueBoxOutput("monthly_red_months")))
+    )
+  }
+  
+  summary_actual_ui <- function() {
+    tagList(
+      fluidRow(column(12, valueBoxOutput("average_shortage"))),
+      fluidRow(lapply(0:2, function(i) column(4, valueBoxOutput(paste0("shortage_level_", i))))),
+      fluidRow(lapply(3:5, function(i) column(4, valueBoxOutput(paste0("shortage_level_", i))))),
+      fluidRow(column(4, valueBoxOutput("shortage_level_6")))
+    )
+  }
+  
+  summary_historical_ui <- function() {
+    tagList(
+      fluidRow(
+        column(6, valueBoxOutput("total_produced_box")),
+        column(6, valueBoxOutput("total_delivered_box"))
+      ),
+      br(),
+      fluidRow(
+        column(12, uiOutput("hist_value_boxes"))
+      )
+    )
+  }
+  
+  
+  # --- Five Year Outlook Value Boxes ---
+  five_values_function <- function(id, year_range) {
+    water_data$five_year_outlook %>%
+      filter(org_id == id) %>%
+      mutate(forecast_year = lubridate::year(forecast_start_date)) %>%
+      filter(forecast_year >= year_range[1], forecast_year <= year_range[2]) %>%
+      pivot_longer(cols = starts_with(c("water", "benefit")), names_to = "use_supply_aug_red", values_to = "acre_feet") %>%
+      group_by(use_supply_aug_red) %>%
+      summarize(total_value = sum(acre_feet, na.rm = TRUE), .groups = "drop")
+  }
+  
+  # -- 5 yr ---
+  render_five_value_box <- function(label) {
+    renderValueBox({
+      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      start_year <- year(as.Date(input$date_picker_start))
+      end_year   <- year(as.Date(input$date_picker_end))
+      
+      val <- five_values_function(input$org_id, c(start_year, end_year)) %>%
+        filter(use_supply_aug_red == label) %>%
+        pull(total_value)
+      
+      valueBox(
+        value = ifelse(length(val) > 0, scales::comma(val), "0"),
+        subtitle = pretty_label(label),
+        color = "blue"
+      )
+    })
+  }
+  
+  output$fiveyr_use    <- render_five_value_box("water_use_acre_feet")
+  output$fiveyr_supply <- render_five_value_box("water_supplies_acre_feet")
+  output$fiveyr_aug    <- render_five_value_box("benefit_supply_augmentation_acre_feet")
+  output$fiveyr_red    <- render_five_value_box("benefit_demand_reduction_acre_feet")
+  
+  
+  # --- Monthly Water Outlook Value Boxes ---
+  monthly_values_function <- function(id, date) {
+    water_data$monthly_water_outlook %>%
+      filter(org_id == id) %>%
+      mutate(year_month = format(forecast_start_date, "%Y-%m")) %>%
+      filter(year_month >= format(as.Date(date[1]), "%Y-%m"),
+             year_month <= format(as.Date(date[2]), "%Y-%m")) %>%
+      pivot_longer(cols = starts_with(c("shortage", "benefit")), names_to = "use_supply_aug_red", values_to = "acre_feet") %>%
+      group_by(use_supply_aug_red) %>%
+      summarize(total_acre_feet = sum(acre_feet, na.rm = TRUE), .groups = "drop")
+  }
+  
+  monthly_months_function <- function(id, date) {
+    water_data$monthly_water_outlook %>%
+      filter(org_id == id) %>%
+      mutate(year_month = format(forecast_start_date, "%Y-%m")) %>%
+      filter(year_month >= format(as.Date(date[1]), "%Y-%m"),
+             year_month <= format(as.Date(date[2]), "%Y-%m")) %>%
+      pivot_longer(cols = starts_with(c("shortage", "benefit")), names_to = "use_supply_aug_red", values_to = "acre_feet") %>%
+      group_by(use_supply_aug_red) %>%
+      summarize(num_months = n(), .groups = "drop")
+  }
+  
+  render_monthly_value <- function(label, color) {
+    renderValueBox({
+      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      val <- monthly_values_function(input$org_id, c(input$date_picker_start, input$date_picker_end)) %>%
+        filter(use_supply_aug_red == label) %>%
+        pull(total_acre_feet)
+      
+      valueBox(
+        value = ifelse(length(val) > 0, scales::comma(val), "0"),
+        subtitle = pretty_label(label),
+        color = color
+      )
+    })
+  }
+  
+  render_monthly_months <- function(label, color) {
+    renderValueBox({
+      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      val <- monthly_months_function(input$org_id, c(input$date_picker_start, input$date_picker_end)) %>%
+        filter(use_supply_aug_red == label) %>%
+        pull(num_months)
+      
+      valueBox(
+        value = ifelse(length(val) > 0, val, "0"),
+        subtitle = paste(pretty_label(label), "(Months)"),
+        color = color
+      )
+    })
+  }
+  
+  output$monthly_shortage_value <- render_monthly_value("shortage_surplus_acre_feet", "blue")
+  output$monthly_shortage_months <- render_monthly_months("shortage_surplus_acre_feet", "teal")
+  output$monthly_aug_value       <- render_monthly_value("benefit_supply_augmentation_acre_feet", "blue")
+  output$monthly_aug_months      <- render_monthly_months("benefit_supply_augmentation_acre_feet", "teal")
+  output$monthly_red_value       <- render_monthly_value("benefit_demand_reduction_acre_feet", "blue")
+  output$monthly_red_months      <- render_monthly_months("benefit_demand_reduction_acre_feet", "teal")
+  
+  # --- Actual Shortage Value Boxes ---
+  actual_filter_function <- function(id, date){
+    date_seq <- seq(
+      from = lubridate::ymd(paste0(format(as.Date(date[1]), "%Y-%m"), "-01")),
+      to = lubridate::ymd(paste0(format(as.Date(date[2]), "%Y-%m"), "-01")),
+      by = "1 month"
+    ) %>% format("%Y-%m")
+    
+    water_data$actual_shortage %>%
+      filter(org_id == id) %>%
+      mutate(year_month = format(start_date, "%Y-%m")) %>%
+      filter(year_month %in% date_seq)
+  }
+  
+  output$average_shortage <- renderValueBox({
+    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    df <- actual_filter_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    
+    avg <- mean(df$state_standard_shortage_level, na.rm = TRUE)
+    
+    valueBox(
+      value = round(avg, 2),
+      subtitle = "Average Shortage Level",
+      color = "yellow"
+    )
+  })
+  
+  lapply(0:6, function(i) {
+    output[[paste0("shortage_level_", i)]] <- renderValueBox({
+      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      df <- actual_filter_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+      
+      count <- sum(df$state_standard_shortage_level == i, na.rm = TRUE)
+      
+      valueBox(
+        value = count,
+        subtitle = paste("Months at Shortage Level", i),
+        color = "orange"
+      )
+    })
+  })
+  
+  # --- Historical Production Value Boxes ---
+  hist_filt_function <- function(id, date) {
+    date_seq <- seq(
+      from = lubridate::ymd(paste0(format(as.Date(date[1]), "%Y-%m"), "-01")),
+      to = lubridate::ymd(paste0(format(as.Date(date[2]), "%Y-%m"), "-01")),
+      by = "1 month"
+    ) %>% format("%Y-%m")
+    
+    water_data$historical_production %>%
+      filter(org_id == id) %>%
+      mutate(year_month = format(start_date, "%Y-%m")) %>%
+      mutate(quantity_acre_feet = as.numeric(quantity_acre_feet),
+             quantity_acre_feet = replace_na(quantity_acre_feet, 0)) %>%
+      filter(year_month %in% date_seq)
+  }
+  
+  output$total_produced_box <- renderValueBox({
+    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    
+    df <- hist_filt_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    
+    produced_total <- df %>%
+      filter(water_produced_or_delivered == "water produced") %>%
+      summarize(total = sum(quantity_acre_feet, na.rm = TRUE)) %>%
+      pull(total)
+    
+    valueBox(
+      value = scales::comma(produced_total),
+      subtitle = pretty_label("total_produced"),
+      color = "light-blue"
+    )
+  })
+  
+  
+  output$total_delivered_box <- renderValueBox({
+    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    
+    df <- hist_filt_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    
+    delivered_total <- df %>%
+      filter(water_produced_or_delivered == "water delivered") %>%
+      summarize(total = sum(quantity_acre_feet, na.rm = TRUE)) %>%
+      pull(total)
+    
+    valueBox(
+      value = scales::comma(delivered_total),
+      subtitle = pretty_label("total_delivered"),
+      color = "light-blue"
+    )
+  })
+  
+  output$hist_value_boxes <- renderUI({
+    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    
+    df <- hist_filt_function(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    
+    selected_types <- combined_water_types()
+    
+    if (is.null(selected_types) || length(selected_types) == 0) return(NULL)
+    
+    # Standardize matching by lowercasing both
+    values_df <- df %>%
+      filter(str_to_lower(water_type) %in% str_to_lower(selected_types)) %>%
+      group_by(water_produced_or_delivered, water_type) %>%
+      summarize(total_value = sum(quantity_acre_feet, na.rm = TRUE), .groups = "drop")
+    
+    produced <- values_df %>% filter(water_produced_or_delivered == "water produced")
+    delivered <- values_df %>% filter(water_produced_or_delivered == "water delivered")
+    
+    tagList(
+      if (nrow(produced) > 0) {
+        tagList(
+          h4("Water Produced", style = "text-align: center; margin-top: 10px;"),
+          fluidRow(
+            lapply(seq_len(nrow(produced)), function(i) {
+              column(6, div(class = "value-box-custom", valueBox(
+                value = scales::comma(produced$total_value[i]),
+                subtitle = pretty_label(produced$water_type[i], water_type_context = TRUE),
+                icon = NULL
+              )))
+            })
+          )
+        )
+      },
+      if (nrow(delivered) > 0) {
+        tagList(
+          h4("Water Delivered", style = "text-align: center; margin-top: 20px;"),
+          fluidRow(
+            lapply(seq_len(nrow(delivered)), function(i) {
+              column(6, div(class = "value-box-custom", valueBox(
+                value = scales::comma(delivered$total_value[i]),
+                subtitle = pretty_label(delivered$water_type[i], water_type_context = TRUE),
+                icon = NULL
+              )))
+            })
+          )
+        )
+      }
+    )
+  })
+  
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                            NA Values Reactive UI                         ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
   # START NA Values Reactive UI
   output$na_values <- renderUI({
     
@@ -916,10 +1023,9 @@ output$summary_stats <- renderUI({
              # Title after info button
              h3("Missing Information", style = "text-align: center;")
              
-           ), # END Historical Production 
+           ) # END Historical Production 
            
-           ) # END Reactive NA UI
+    ) # END Reactive NA UI
   })
-
+  
 }
-
