@@ -999,10 +999,10 @@ server <- function(input, output, session) {
   
   # Render the actual shortage value box
   output$shortage_na_percent <- renderValueBox({
-    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
     # Get the data for the org and date range
-    df <- actual_filter(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    df <- actual_filter(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     # Calculate the percent missing
     percent_missing <- round(actual_na(df)[3], 2)
@@ -1021,9 +1021,9 @@ server <- function(input, output, session) {
   # -----------------------------------------
   render_fiveyr_na_box <- function(field, label) {
     renderValueBox({
-      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      req(input$search_bar, input$date_picker_start, input$date_picker_end)
       
-      df2 <- fiveyr_filter(input$org_id, c(input$date_picker_start, input$date_picker_end))
+      df2 <- fiveyr_filter(input$search_bar, c(input$date_picker_start, input$date_picker_end))
       na_summary <- fiveyr_na(df2)
       
       percent_missing <- round(na_summary[[field]], 2)
@@ -1047,9 +1047,9 @@ server <- function(input, output, session) {
   # ----------------------------------------- 
   render_monthly_na_box <- function(field, label) {
     renderValueBox({
-      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      req(input$search_bar, input$date_picker_start, input$date_picker_end)
       
-      df3 <- monthlywater_filter(input$org_id, c(input$date_picker_start, input$date_picker_end))
+      df3 <- monthlywater_filter(input$search_bar, c(input$date_picker_start, input$date_picker_end))
       na_summary <- monthly_na(df3)
       
       percent_missing <- round(na_summary[[field]], 2)
@@ -1072,7 +1072,7 @@ server <- function(input, output, session) {
   
   # Function to render Historical Production NA percentage boxes
   output$historical_na_boxes <- renderUI({
-    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
     water_types <- combined_water_types()
     
@@ -1080,7 +1080,7 @@ server <- function(input, output, session) {
       return(h4("No water types selected.", style = "text-align:center;"))
     }
     
-    df4 <- historical_filtering(input$org_id, c(input$date_picker_start, input$date_picker_end), water_types)
+    df4 <- historical_filtering(input$search_bar, c(input$date_picker_start, input$date_picker_end), water_types)
     
     if (nrow(df4) == 0) {
       return(h4("No historical production data available for this org/date/type.", style = "text-align:center;"))
