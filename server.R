@@ -21,6 +21,7 @@ library(paletteer)
 
 source("data_cleaning.R") # Load in data once.
 source("functions/dashboard_functions.R") # Load dashboard plot functions.
+source("functions/calculate_na_summary.R")
 
 # Subset our list of datasets for `source_name` data.
 source_name <- water_data$source_name
@@ -923,124 +924,198 @@ server <- function(input, output, session) {
   
   # START NA Values Reactive UI
   output$na_values <- renderUI({
-    
-    # Required dataset for UI Output
     req(input$dataset_selector)
     
-    # START Reactive NA UI
-    switch(input$dataset_selector,
-           
-           
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           ##  ~ Monthly Water Outlook  ----
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           
-           "monthly_water_outlook" = tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_NA",
-               title = "Information",
-               content = "Displaying the missing information.",
-               placement = "left",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Missing Information", style = "text-align: center;")
-             
-           ), # END Monthly Outlook
-           
-           
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           ##  ~ Five Year Outlook  ----
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           
-           "five_year_outlook" = tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_NA",
-               title = "Information",
-               content = "Displaying the missing information.",
-               placement = "left",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Missing Information", style = "text-align: center;")
-             
-           ), # END Five Year Outlook
-           
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~
-           ##  ~ Actual Shortage  ----
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~
-           
-           "actual_shortage" = tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_NA",
-               title = "Information",
-               content = "Displaying the missing information.",
-               placement = "left",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Missing Information", style = "text-align: center;")
-             
-           ), # END Actual Shortage 
-           
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           ##  ~ Historical Production  ----
-           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           
-           "historical_production" = tagList(
-             
-             # Info button icon
-             div(
-               style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-               tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-             ),
-             
-             # Info button information
-             bsPopover(
-               id = "info_NA",
-               title = "Information",
-               content = "Displaying the missing information.",
-               placement = "left",
-               trigger = "hover",
-               options = list(container = "body")
-             ),
-             
-             # Title after info button
-             h3("Missing Information", style = "text-align: center;")
-             
-           ) # END Historical Production 
-           
-    ) # END Reactive NA UI
+    card(
+      full_screen = TRUE,
+      style = "overflow-y: auto; max-height: 290px; padding: 10px;",
+      div(
+        style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+        tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+      ),
+      bsPopover(
+        id = "info_NA",
+        title = "Information",
+        content = "Displaying the missing information.",
+        placement = "left",
+        trigger = "hover",
+        options = list(container = "body")
+      ),
+      div(  # <-- Here wrap the content you want to scroll
+        style = "overflow-y: auto; max-height: 240px; padding-right: 10px;",  # Important: slightly smaller inside the card
+        tagList(
+          switch(input$dataset_selector,
+                 
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 ##  ~ Monthly Water Outlook  ----
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 "monthly_water_outlook" = tagList(
+                   h3("Missing Information", style = "text-align: center;"),
+                   fluidRow(
+                     column(6, valueBoxOutput("reduction_na")),
+                     column(6, valueBoxOutput("surplus_na"))
+                   )
+                 ),
+                 
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 ##  ~ Five Year Outlook  ----
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 "five_year_outlook" = tagList(
+                   h3("Missing Information", style = "text-align: center;"),
+                   fluidRow(
+                     column(6, valueBoxOutput("fiveyr_na_percent_water_use")),
+                     column(6, valueBoxOutput("fiveyr_na_percent_water_supplies"))
+                   ),
+                   fluidRow(
+                     column(6, valueBoxOutput("fiveyr_na_percent_benefit_supply")),
+                     column(6, valueBoxOutput("fiveyr_na_percent_benefit_demand"))
+                   )
+                 ),
+                 
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~
+                 ##  ~ Actual Shortage  ----
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~
+                 "actual_shortage" = tagList(
+                   h3("Missing Information", style = "text-align: center;"),
+                   valueBoxOutput("shortage_na_percent")  
+                 ),
+                 
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 ##  ~ Historical Production  ----
+                 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 "historical_production" = tagList(
+                   h3("Missing Information", style = "text-align: center;"),
+                   uiOutput("historical_na_boxes")
+                 )
+          )
+        )
+      )
+    )
   })
   
-}
+  # -----------------------------------------
+  # --- Actual Shortage Value Boxes ---
+  # -----------------------------------------
+  
+  # Render the actual shortage value box
+  output$shortage_na_percent <- renderValueBox({
+    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    
+    # Get the data for the org and date range
+    df <- actual_filter(input$org_id, c(input$date_picker_start, input$date_picker_end))
+    
+    # Calculate the percent missing
+    percent_missing <- round(actual_na(df)[3], 2)
+    
+    # Create and render the valueBox
+    valueBox(
+      value = paste0(percent_missing, "%"),
+      subtitle = "Missing Data:",
+      color = "black"
+    ) 
+  })
+  
+  
+  # -----------------------------------------
+  # --- 5 Year Value Boxes ---
+  # -----------------------------------------
+  render_fiveyr_na_box <- function(field, label) {
+    renderValueBox({
+      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      
+      df2 <- fiveyr_filter(input$org_id, c(input$date_picker_start, input$date_picker_end))
+      na_summary <- fiveyr_na(df2)
+      
+      percent_missing <- round(na_summary[[field]], 2)
+      
+      valueBox(
+        value = ifelse(is.na(percent_missing), "No data", paste0(percent_missing, "%")),
+        subtitle = label,
+        color = "black"
+      )
+    })
+  }
+  
+  # 5yr dataset column display
+  output$fiveyr_na_percent_water_use      <- render_fiveyr_na_box("water_use_na", "Water Use Missing Data")
+  output$fiveyr_na_percent_water_supplies <- render_fiveyr_na_box("water_supplies_na", "Water Supplies Missing Data")
+  output$fiveyr_na_percent_benefit_supply <- render_fiveyr_na_box("benefit_supply_na", "Supply Augmentation Missing Data")
+  output$fiveyr_na_percent_benefit_demand <- render_fiveyr_na_box("benefit_demand_na", "Demand Reduction Missing Data")
+  
+  # -----------------------------------------
+  # --- Monthly Value Boxes ---
+  # ----------------------------------------- 
+  render_monthly_na_box <- function(field, label) {
+    renderValueBox({
+      req(input$org_id, input$date_picker_start, input$date_picker_end)
+      
+      df3 <- monthlywater_filter(input$org_id, c(input$date_picker_start, input$date_picker_end))
+      na_summary <- monthly_na(df3)
+      
+      percent_missing <- round(na_summary[[field]], 2)
+      
+      valueBox(
+        value = ifelse(is.na(percent_missing), "No data", paste0(percent_missing, "%")),
+        subtitle = label,
+        color = "black"
+      )
+    })
+  }
+  
+  # Monthly dataset column display
+  output$reduction_na      <- render_monthly_na_box("demand_red_na", "Demand Reduction Missing Data")
+  output$surplus_na <- render_monthly_na_box("shortage_na", "Shortage Surplus Data")
+  
+  # -----------------------------------------
+  # --- Historical Production Value Boxes ---
+  # -----------------------------------------
+  
+  # Function to render Historical Production NA percentage boxes
+  output$historical_na_boxes <- renderUI({
+    req(input$org_id, input$date_picker_start, input$date_picker_end)
+    
+    water_types <- combined_water_types()
+    
+    if (is.null(water_types) || length(water_types) == 0) {
+      return(h4("No water types selected.", style = "text-align:center;"))
+    }
+    
+    df4 <- historical_filtering(input$org_id, c(input$date_picker_start, input$date_picker_end), water_types)
+    
+    if (nrow(df4) == 0) {
+      return(h4("No historical production data available for this org/date/type.", style = "text-align:center;"))
+    }
+    
+    na_summary <- hist_na(df4)
+    
+    value_boxes <- lapply(water_types, function(type) {
+      label <- paste("Missing Data:", type)
+      
+      na_row <- na_summary %>% filter(tolower(water_type) == tolower(type))
+      
+      if (nrow(na_row) == 0) {
+        percent_missing <- 100 
+      } else {
+        percent_missing <- round(na_row$na_percentage, 2)
+      }
+      
+      column(6, valueBox(
+        value = paste0(percent_missing, "%"),
+        subtitle = label,
+        color = if (is.na(percent_missing)) {
+          "gray"
+        } else if (percent_missing == 0) {
+          "green"
+        } else if (percent_missing <= 10) {
+          "yellow"
+        } else {
+          "red"
+        }
+      ))
+    })
+    
+    fluidRow(value_boxes)
+  })
+  
+  
+} # End of server 
