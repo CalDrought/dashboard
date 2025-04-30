@@ -18,6 +18,12 @@ This dashboard was created to to visualize urban water drought data currently lo
 │   ├── monthly water shortage outlook
 │   ├── historical production and delivery
 │   ├── actual water shortage levels
-├── gap analysis
+│   ├── source names
+│   ├── water district geospatial
+├── Server.R
+├── UI.R
+├── Dashboard_functions/
+    ├──dashboard_function.R
+    ├──cleaning_functions.R
 └── README.md
 ```
