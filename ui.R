@@ -101,9 +101,14 @@ ui <- fluidPage(
                   fluidRow(
                     
                     # Dataset selector
-                    column(11,
+                    column(4,
                            style = "display: flex;",
                            selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%")),
+                    
+                    # Dynamic date picker
+                    column(7,
+                           uiOutput("plot_controls")
+                           ),
                     
                     # Info Button
                     column(1,
@@ -123,12 +128,64 @@ ui <- fluidPage(
                              trigger = "hover",
                              options = list(container = "body")
                            )
+                    ),
+                    
+                    
+                    # Conditional Row for Historical_production data b/c there are more inputs
+                    conditionalPanel(
+                      condition = "input.dataset_selector == 'historical_production'",
+                      
+                      column(12,
+                             
+                             style = "padding-top: 15px;",
+                             
+                             # Create another row below dataset and date inputs
+                             fluidRow(
+                               
+                               # Delivered type taking half the space
+                               column(5,
+                                      
+                                      # Selecting water type
+                                      selectInput("delivered_type", "Select Delivered Type", c("Agriculture",
+                                                                                             "Single-Family Residential",
+                                                                                             "Commercial/Institutional",
+                                                                                             "Industrial",
+                                                                                             "Landscape Irrigation",
+                                                                                             "Multi-Family Residential",
+                                                                                             "Other",
+                                                                                             "Other Pws"),
+                                                  
+                                                  multiple = TRUE, # Able to select multiple "Types"
+                                                  width = "100%")),  # Selection bar covers all of the fitted area
+                               
+                               # Produced type taking half the space
+                               column(5,
+                                      
+                                      # Selecting Production Water Type
+                                      selectInput("produced_type", "Select Produced Type",
+                                                  c("Recycled", "Surface Water", "Groundwater Wells", 
+                                                    "Non-Potable (Total Excluded Recycled)",  "Purchased Or Received From Another Pws",
+                                                    "Sold To Another Pws","Non-Potable Water Sold To Another Pws"
+                                                  ),
+                                                  multiple = TRUE,
+                                                  width = "100%")),
+                               
+                               column(2,
+                                      
+                                      # Selecting Total Production and Delivery
+                                      checkboxGroupInput(inputId = "include_total",
+                                                         label = "Total Produced and Delivered",
+                                                         choices = "Total")
+                                      )
+                             )
+                             
+                             
+                      )
                     )
                     
                   ), # END First row
                   
                   
-                  uiOutput("plot_controls"),
                   
                   # START second row for the date range + plot
                   fluidRow(
