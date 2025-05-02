@@ -232,6 +232,24 @@ server <- function(input, output, session) {
     )
   })
   
+  year_range <- reactive({
+    req(input$dataset_selector)
+    df <- water_data[[input$dataset_selector]]
+    
+    if (input$dataset_selector == "five_year_outlook" && !is.null(df$forecast_start_date)) {
+      dates <- as.Date(df$forecast_start_date)
+      
+      return(list(
+        minDate = min(dates),
+        maxDate = max(dates),
+        default = min(dates)
+      ))
+    }
+    
+    # Fallback
+    return(list(minDate = NULL, maxDate = NULL, default = NULL))
+  })
+  
   # Whenever the dataset changes, reset date or year pickers
   observeEvent(input$dataset_selector, {
     df <- water_data[[input$dataset_selector]]
@@ -266,22 +284,81 @@ server <- function(input, output, session) {
       
       # five‐year outlook -> year dropdown
     } else if (input$dataset_selector == "five_year_outlook") {
-      yrs <- sort(unique(format(as.Date(df$forecast_start_date), "%Y")))
-      updateSelectInput(session, "year",
-                        choices  = yrs,
-                        selected = yrs[1])
+      
+      yr <- year_range()
+      
+      updateAirDateInput(
+        session, "date_picker_start",
+        value = yr$default,
+        options = list(
+          minDate = yr$minDate,
+          maxDate = yr$maxDate
+        )
+      )
+      
+      updateAirDateInput(
+        session, "date_picker_end",
+        value = yr$maxDate,
+        options = list(
+          minDate = yr$minDate,
+          maxDate = yr$maxDate
+        )
+      )
     }
   })
   
   observeEvent(input$date_picker_start, {
+    req(input$date_picker_start)
+    
     start <- as.Date(input$date_picker_start)
     dr <- date_range()
+    
+    # Get current end date or fall back to max
+    current_end <- input$date_picker_end
+    end <- if (!is.null(current_end)) as.Date(current_end) else dr$maxDate
+    
+    # If out of bounds, use max date
+    if (end < start || end > dr$maxDate) {
+      end <- dr$maxDate
+    }
+    
     updateAirDateInput(
       session, "date_picker_end",
-      options = list(minDate = start,
-                     maxDate = dr$maxDate)
+      value = end,
+      options = list(
+        minDate = start,
+        maxDate = dr$maxDate
+      )
     )
   })
+  
+  observeEvent({
+    input$date_picker_start
+    input$dataset_selector
+  }, {
+    req(input$dataset_selector == "five_year_outlook")
+    req(input$date_picker_start)
+    
+    start <- as.Date(input$date_picker_start)
+    yr <- year_range()
+    
+    current_end <- input$date_picker_end
+    end <- if (!is.null(current_end)) as.Date(current_end) else yr$maxDate
+    
+    if (end < start || end > yr$maxDate) {
+      end <- yr$maxDate
+    }
+    
+    updateAirDateInput(
+      session, "date_picker_end",
+      value = end,
+      options = list(
+        minDate = start,
+        maxDate = yr$maxDate
+      )
+    )
+  })
+  
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                          Reactive Plot UI Output                         ----
@@ -294,6 +371,7 @@ server <- function(input, output, session) {
   output$plot_controls<- renderUI({
     req(input$dataset_selector)
     dr <- date_range()
+    yr <- year_range()
     
     # Depending on the dataset you select the UI controls will change.
     # Below we have the server UI for each selected dataset.
@@ -306,13 +384,9 @@ server <- function(input, output, session) {
            # Actual Shortage only uses org_id and date (as [start, end])
            "actual_shortage" = fluidRow(
              
-             # Dataset selector
-             column(5,
-                    style = "display: flex;",
-                    selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%")),
              
              # Month-Year end selection drop down
-             column(3,
+             column(6,
                     airDatepickerInput(
                       "date_picker_start", 
                       label = "Start month",
@@ -328,7 +402,7 @@ server <- function(input, output, session) {
              
              
              # Month-Year end selection drop down
-             column(3,
+             column(6,
                     airDatepickerInput(
                       "date_picker_end", 
                       label = "End month",
@@ -341,24 +415,6 @@ server <- function(input, output, session) {
                     )
              ),
              
-             column(1,
-                    
-                    # add info-button using bsPopover
-                    div(
-                      style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                      tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                    ),
-                    
-                    # add popover content
-                    bsPopover(
-                      id = "info_graph",
-                      title = "Information",
-                      content = "To generate the graph, select a water district/Org ID and specify the desired date range.",
-                      placement = "right",
-                      trigger = "hover",
-                      options = list(container = "body")
-                    )
-             )
            ), # END ACTUAL SHORTAGE WIDGET
            
            
@@ -370,7 +426,7 @@ server <- function(input, output, session) {
            "monthly_water_outlook" = fluidRow(
              
              # Month-Year end selection drop down
-             column(4,
+             column(6,
                     airDatepickerInput(
                       "date_picker_start", 
                       label = "Start month",
@@ -384,7 +440,7 @@ server <- function(input, output, session) {
              ),
              
              # Month-Year end selection drop down
-             column(4,
+             column(6,
                     airDatepickerInput(
                       "date_picker_end", 
                       label = "End month",
@@ -406,30 +462,30 @@ server <- function(input, output, session) {
            "five_year_outlook" = fluidRow(
 
              # Year start selection drop down
-             column(4,
+             column(6,
                     airDatepickerInput(
                       "date_picker_start", 
                       label = "Start year",
                       view = "years", 
                       minView = "years",
                       dateFormat = "yyyy",
-                      value = dr$default,
-                      minDate = dr$minDate,
-                      maxDate = dr$maxDate
+                      value = yr$default,
+                      minDate = yr$minDate,
+                      maxDate = yr$maxDate
                     )
              ),
              
              # Year end selection drop down
-             column(4,
+             column(6,
                     airDatepickerInput(
                       "date_picker_end", 
                       label = "End year",
                       view = "years",   
                       minView = "years",
                       dateFormat = "yyyy",
-                      value = dr$maxDate,
-                      minDate = dr$minDate,
-                      maxDate = dr$maxDate
+                      value = yr$maxDate,
+                      minDate = yr$minDate,
+                      maxDate = yr$maxDate
                     )
              )
            ), # END FIVE YEAR PLOT WIDGET
@@ -446,7 +502,7 @@ server <- function(input, output, session) {
              fluidRow(
                
                # Month-Year end selection drop down
-               column(4,
+               column(6,
                       airDatepickerInput(
                         "date_picker_start", 
                         label = "Start month",
@@ -460,7 +516,7 @@ server <- function(input, output, session) {
                ),
                
                # Month-Year end selection drop down
-               column(4,
+               column(6,
                       airDatepickerInput(
                         "date_picker_end", 
                         label = "End month",
@@ -477,32 +533,32 @@ server <- function(input, output, session) {
              # Second row for water type selection
              fluidRow(
                
-               column(6,
-                      
-                      # Selecting water type
-                      selectInput("delivered_type", "Select Deliver Type", c("Agriculture",
-                                                                             "Single-Family Residential",
-                                                                             "Commercial/Institutional",
-                                                                             "Industrial",
-                                                                             "Landscape Irrigation",
-                                                                             "Multi-Family Residential",
-                                                                             "Other",
-                                                                             "Other Pws",
-                                                                             "Total"),
-                                  
-                                  multiple = TRUE, # Able to select multiple "Types"
-                                  width = "100%")),  # Selection bar covers all of the fitted area
-               
-               column(6,
-                      
-                      # Selecting Production Water Type
-                      selectInput("produced_type", "Select Produced Type",
-                                  c("Recycled", "Surface Water", "Groundwater Wells", 
-                                    "Non-Potable (Total Excluded Recycled)",  "Purchased Or Received From Another Pws",
-                                    "Sold To Another Pws","Non-Potable Water Sold To Another Pws", "Total"
-                                  ),
-                                  multiple = TRUE,
-                                  width = "100%"))
+               # column(6,
+               #        
+               #        # Selecting water type
+               #        selectInput("delivered_type", "Select Deliver Type", c("Agriculture",
+               #                                                               "Single-Family Residential",
+               #                                                               "Commercial/Institutional",
+               #                                                               "Industrial",
+               #                                                               "Landscape Irrigation",
+               #                                                               "Multi-Family Residential",
+               #                                                               "Other",
+               #                                                               "Other Pws",
+               #                                                               "Total"),
+               #                    
+               #                    multiple = TRUE, # Able to select multiple "Types"
+               #                    width = "100%")),  # Selection bar covers all of the fitted area
+               # 
+               # column(6,
+               #        
+               #        # Selecting Production Water Type
+               #        selectInput("produced_type", "Select Produced Type",
+               #                    c("Recycled", "Surface Water", "Groundwater Wells", 
+               #                      "Non-Potable (Total Excluded Recycled)",  "Purchased Or Received From Another Pws",
+               #                      "Sold To Another Pws","Non-Potable Water Sold To Another Pws", "Total"
+               #                    ),
+               #                    multiple = TRUE,
+               #                    width = "100%"))
                
                
              ) # END SECOND ROW Water type selection
@@ -522,26 +578,24 @@ server <- function(input, output, session) {
   combined_water_types <- reactive({
     delivered <- input$delivered_type
     produced  <- input$produced_type
+    include_total <- input$include_total  # checkboxGroupInput value
     
-    # If both are empty, return NULL
-    if ((is.null(delivered) || length(delivered) == 0) && 
-        (is.null(produced)  || length(produced) == 0)) {
-      return(NULL)
+    types <- c()
+    
+    # Add delivered and produced if they exist
+    if (!is.null(delivered)) types <- c(types, delivered)
+    if (!is.null(produced))  types <- c(types, produced)
+    
+    # Add "Total" if checkbox selected
+    if (!is.null(include_total) && "Total" %in% include_total) {
+      types <- c(types, "Total")
     }
     
-    # If only delivered selected
-    if (length(delivered) > 0 && (is.null(produced) || length(produced) == 0)) {
-      return(delivered)
-    }
+    if (length(types) == 0) return(NULL)
     
-    # If only produced selected
-    if (length(produced) > 0 && (is.null(delivered) || length(delivered) == 0)) {
-      return(produced)
-    }
-    
-    # If both are selected
-    return(c(delivered, produced))
+    return(unique(types))
   })
+  
   
   # to make summary stats possible with drop down as is
   combined_water_types_filtered <- reactive({
