@@ -220,7 +220,7 @@ hist_plot_function <- function(id, date, water_types){
     "Surface Water" = "#924900",
     "Groundwater Wells" = "#db6d00",
     "Non-Potable (Total Excluded Recycled)" = "#24ff24",
-    "Purchased Or Received From Another Pws" = "#ffff6d",
+    "Purchased Or Received From Another Pws" = "#ec5300",
     "Sold To Another Pws" = "#c10020"
   )
   

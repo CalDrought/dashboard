@@ -306,8 +306,13 @@ server <- function(input, output, session) {
            # Actual Shortage only uses org_id and date (as [start, end])
            "actual_shortage" = fluidRow(
              
+             # Dataset selector
+             column(5,
+                    style = "display: flex;",
+                    selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%")),
+             
              # Month-Year end selection drop down
-             column(4,
+             column(3,
                     airDatepickerInput(
                       "date_picker_start", 
                       label = "Start month",
@@ -320,8 +325,10 @@ server <- function(input, output, session) {
                     )
              ),
              
+             
+             
              # Month-Year end selection drop down
-             column(4,
+             column(3,
                     airDatepickerInput(
                       "date_picker_end", 
                       label = "End month",
@@ -331,6 +338,25 @@ server <- function(input, output, session) {
                       value = dr$maxDate,
                       minDate = dr$minDate,
                       maxDate = dr$maxDate
+                    )
+             ),
+             
+             column(1,
+                    
+                    # add info-button using bsPopover
+                    div(
+                      style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                      tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+                    ),
+                    
+                    # add popover content
+                    bsPopover(
+                      id = "info_graph",
+                      title = "Information",
+                      content = "To generate the graph, select a water district/Org ID and specify the desired date range.",
+                      placement = "right",
+                      trigger = "hover",
+                      options = list(container = "body")
                     )
              )
            ), # END ACTUAL SHORTAGE WIDGET
