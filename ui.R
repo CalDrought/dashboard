@@ -273,55 +273,31 @@ ui <- fluidPage(
   
   
   # Row for the second half of the page
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                  Bottom Section: Summary Stats & NA Values               ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   fluidRow(
-    style = "margin-top: 15px;",  # spacing from top row
-    
-    
-    column(12,
-           style = "display: flex; align-items: stretch;",
+    column(12, 
+           style = "display: flex; align-items: stretch; margin-top: 15px;",
            
-           #### ---- Bottom-Left: Summary Stats Section ---- ####
-           column(7, 
-                  style = "border: 1px double black; height: 300px;",  # adds spacing between cols
-                  
-                  # div(
-                  #   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                  #   tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                  # ),
-                  # 
-                  # bsPopover(
-                  #   id = "info_summary",
-                  #   title = "Information",
-                  #   content = "Displaying the summary stats.",
-                  #   placement = "right",
-                  #   trigger = "hover",
-                  #   options = list(container = "body")
-                  # ),
+           # Bottom-left: Summary Stats
+           column(7,
+                  style = "border: 1px double black; padding: 10px; height: 300px;",
                   uiOutput("summary_stats")
            ),
            
-           #### ---- Bottom-Right: NA Values Section ---- #### 
+           # Bottom-right: Missing Info — mimics top row layout
            column(5,
-                  style = "border: 1px double black; height: 300px;",
-                  
-                  uiOutput("na_values")
-                  
-                  # div(
-                  #   style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                  #   tags$span(actionButton("info_NA", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                  # ),
-                  # 
-                  # bsPopover(
-                  #   id = "info_NA",
-                  #   title = "Information",
-                  #   content = "Displaying the missing information.",
-                  #   placement = "left",
-                  #   trigger = "hover",
-                  #   options = list(container = "body")
-                  #)
+                  style = "display: flex; padding-right: 0px;",
+                  column(12,
+                         style = "padding: 0; border: 1px double black; height: 300px;",
+                         uiOutput("na_values")
+                  )
            )
     )
   )
+  
+  
   
   
 )
