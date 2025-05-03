@@ -204,11 +204,30 @@ server <- function(input, output, session) {
   # ---------- Column 1: Inside Box 1: Row 1 (Dataset Selection Dropdown) ----------
   
   # Populate Dataset selection dropdown with our dataset names.
+  
+  #old one (can delete): observe({
+  #   # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
+  #   all_dataset_names <- sort(names(water_data)) # sort dataset names.
+  #   updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2]) # update dataset dropdown with new selection.
+  # })
+  
   observe({
-    # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
-    all_dataset_names <- sort(names(water_data)) # sort dataset names.
-    updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2]) # update dataset dropdown with new selection.
-  })
+  # Named datatype: display name (label) = internal_value
+    dataset_labels <- c(
+      "Reported Monthly Shortage Levels" = "actual_shortage",
+      "5 Year Outlook - Water Surplus/Shortage" = "five_year_outlook",
+      "Historical Water Production/Delivery" = "historical_production",
+      "Monthly Surplus/Shortage Forecast" = "monthly_water_outlook"
+    )
+
+  updateSelectInput(session,
+                    "dataset_selector",
+                    choices = dataset_labels,
+                    selected = "actual_shortage")
+})
+
+  
+  
   
   # ---------- Initializing UI Date Pickers ----------
   
@@ -1016,7 +1035,7 @@ server <- function(input, output, session) {
       bsPopover(
         id = "info_NA",
         title = "Information",
-        content = "Displaying the missing information.",
+        content = "This panel displays the percentage of missing values across each category. Note:Due to data limitations, it is not possible to distinguish between values that are truly missing and those that are not applicable.",
         placement = "left",
         trigger = "hover",
         options = list(container = "body")
