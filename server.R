@@ -204,30 +204,11 @@ server <- function(input, output, session) {
   # ---------- Column 1: Inside Box 1: Row 1 (Dataset Selection Dropdown) ----------
   
   # Populate Dataset selection dropdown with our dataset names.
-  
-  #old one (can delete): observe({
-  #   # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
-  #   all_dataset_names <- sort(names(water_data)) # sort dataset names.
-  #   updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2]) # update dataset dropdown with new selection.
-  # })
-  
   observe({
-  # Named datatype: display name (label) = internal_value
-    dataset_labels <- c(
-      "Reported Monthly Shortage Levels" = "actual_shortage",
-      "5 Year Outlook - Water Surplus/Shortage" = "five_year_outlook",
-      "Historical Water Production/Delivery" = "historical_production",
-      "Monthly Surplus/Shortage Forecast" = "monthly_water_outlook"
-    )
-
-  updateSelectInput(session,
-                    "dataset_selector",
-                    choices = dataset_labels,
-                    selected = "actual_shortage")
-})
-
-  
-  
+    # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
+    all_dataset_names <- sort(names(water_data)) # sort dataset names.
+    updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2]) # update dataset dropdown with new selection.
+  })
   
   # ---------- Initializing UI Date Pickers ----------
   
@@ -728,7 +709,7 @@ server <- function(input, output, session) {
         style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
         tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
       ),
-      bsPopover(id = "info_summary", title = "Information", content = "Displaying summary statistics for the selected dataset.", placement = "right", trigger = "hover", options = list(container = "body")),
+      bsPopover(id = "info_summary", title = "Information", content = "Displaying summary statistics for the selected dataset. Water district, dataset, and date range will change summary statistics.", placement = "right", trigger = "hover", options = list(container = "body")),
       div(style = "text-align: center; margin-bottom: 10px;", h3("Summary Statistics")),
       switch(input$dataset_selector,
              "five_year_outlook" = summary_five_year_ui(),
@@ -1035,7 +1016,7 @@ server <- function(input, output, session) {
       bsPopover(
         id = "info_NA",
         title = "Information",
-        content = "This panel displays the percentage of missing values across each category. Note:Due to data limitations, it is not possible to distinguish between values that are truly missing and those that are not applicable.",
+        content = "Displaying the missing information.",
         placement = "left",
         trigger = "hover",
         options = list(container = "body")
