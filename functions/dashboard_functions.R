@@ -110,22 +110,22 @@ five_na_function <- function(id, year){
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                          Five Year Values Function                       ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Function for 5 Year Outlook Value calculation
-five_values_function <- function(id, year){
-  
-  # Use filtered data
-  five_values <- five_filter_function(id, year)
-  
-  five_values %>% 
-    
-    # Group metrics we are interested in 
-    group_by(use_supply_aug_red) %>% 
-    
-    # Summarize there total acre_feet 
-    summarize(total_value = sum(acre_feet))
-  
-}
+# 
+# # Function for 5 Year Outlook Value calculation
+# five_values_function <- function(id, year){
+#   
+#   # Use filtered data
+#   five_values <- five_filter_function(id, year)
+#   
+#   five_values %>% 
+#     
+#     # Group metrics we are interested in 
+#     group_by(use_supply_aug_red) %>% 
+#     
+#     # Summarize there total acre_feet 
+#     summarize(total_value = sum(acre_feet))
+#   
+# }
 
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -236,6 +236,7 @@ hist_plot_function <- function(id, date, water_types){
     scale_color_manual(values = pal) +
     
     geom_line(linewidth = 1.2) +
+    
 
     labs(x = "Date",
          y = "Quantity (Acre-Feet)",
@@ -248,7 +249,7 @@ hist_plot_function <- function(id, date, water_types){
       axis.title = element_text(size = rel(2)),
       legend.title = element_text(size = rel(1.5)),
       legend.text = element_text(size = rel(1.2))
-    )
+    ) 
   
   return(hist_plot)
 }
@@ -456,22 +457,22 @@ monthly_na_function <- function(id, date){
 ##                      Monthly Water Value Calculation                     ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-monthly_values_function <- function(id, date){
-  
-  # Calculate total values 
-  monthly_values <- monthly_filter(id, date) %>% 
-    
-    # Pivot columns for easier computation 
-    pivot_longer(cols = c(shortage_surplus_acre_feet, starts_with("benefit")),
-                 names_to = "use_supply_aug_red",
-                 values_to = "acre_feet") %>% 
-    
-    # Group by new column and summarize total acre-feet
-    group_by(use_supply_aug_red) %>% 
-    summarize(total = sum(acre_feet, na.rm = TRUE))
-  
-  return(monthly_values)
-}
+# monthly_values_function <- function(id, date){
+#   
+#   # Calculate total values 
+#   monthly_values <- monthly_filter(id, date) %>% 
+#     
+#     # Pivot columns for easier computation 
+#     pivot_longer(cols = c(shortage_surplus_acre_feet, starts_with("benefit")),
+#                  names_to = "use_supply_aug_red",
+#                  values_to = "acre_feet") %>% 
+#     
+#     # Group by new column and summarize total acre-feet
+#     group_by(use_supply_aug_red) %>% 
+#     summarize(total = sum(acre_feet, na.rm = TRUE))
+#   
+#   return(monthly_values)
+# }
 
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -546,16 +547,17 @@ actual_plot_function <- function(id, date){
   
   # Plot Water shortage levels for Goleta 
   ggplot(actual_filter_function(id, date), aes(x = start_date, y = state_standard_shortage_level)) +
-    geom_col(fill = "orange3", width = 20) +
+    geom_bar(fill = "orange3", width = 20, stat = "identity", color = "orange3") +
     
     # Format the x-axis to show month & year (e.g., "Mar 2022")
     scale_x_date(
       date_labels = "%b %Y",
-      date_breaks = "1 month",
+      date_breaks = "2 months",
       expand = c(0.01, 0.01)) +
     
     scale_y_continuous(
-      breaks = c(1,2,3,4,5,6)
+      breaks = c(1,2,3,4,5,6),
+      limits = c(0,6)
     ) +
     
     labs(x = "Month",
@@ -568,7 +570,8 @@ actual_plot_function <- function(id, date){
       axis.text.x = element_text(size = rel(1.6), color = "black", angle = 45, hjust = 1),
       axis.text.y = element_text(size = rel(1.5), color = "black"),
       axis.title = element_text(size = rel(1.5)),
-      legend.text = element_text(size = rel(1.2))
+      legend.text = element_text(size = rel(1.2)),
+      axis.title.y = element_text(margin = margin(r = 10))
     )
   
   
