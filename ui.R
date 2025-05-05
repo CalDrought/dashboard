@@ -131,15 +131,32 @@ ui <- fluidPage(
     )
   ),
   
+  # Row for the second half of the page
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                  Bottom Section: Summary Stats & NA Values               ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   fluidRow(
-    style = "margin-top: 15px;",
-    column(12, style = "display: flex; align-items: stretch;",
-           column(7, style = "border: 1px double black; height: 300px;",
+    column(12, 
+           style = "display: flex; align-items: stretch; margin-top: 15px;",
+           
+           # Bottom-left: Summary Stats
+           column(7,
+                  style = "border: 1px double black; padding: 10px; height: 300px;",
                   uiOutput("summary_stats")
            ),
-           column(5, style = "border: 1px double black; height: 300px;",
-                  uiOutput("na_values")
+           
+           # Bottom-right: Missing Info — mimics top row layout
+           column(5,
+                  style = "display: flex; padding-right: 0px;",
+                  column(12,
+                         style = "padding: 0; border: 1px double black; height: 300px;",
+                         uiOutput("na_values")
+                  )
            )
     )
   )
+  
+  
+  
+  
 )
