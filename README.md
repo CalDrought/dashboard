@@ -37,12 +37,13 @@ The secondary folders consist are:
 ├── data/
 │   ├── cal_drinking/
 │   │
-│   ├── five year water shortage outlook
-│   ├── monthly water shortage outlook
-│   ├── historical production and delivery
-│   ├── actual water shortage levels
-│   ├── source names
-│   ├── water district geospatial
+│   ├── five_year_water_shortage_outlook.csv
+│   ├── monthly_water_shortage_outlook.csv
+│   ├── historical_production_delivery.csv
+│   ├── actual_water_shortage_level.csv
+│   ├── source_names.csv
+│   ├── California_Drinking_Water_System_Area_Boundaries.csv
+│   ├── California_Drinking_Water_System_Area_Boundaries.xml
 ├── functions/
     ├──dashboard_function.R
     ├──cleaning_functions.R
