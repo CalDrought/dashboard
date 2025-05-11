@@ -1,6 +1,11 @@
 # Interactive Dashboard for Urban Water Shortage Data
 #### This repository was created for the Data for Drought Resilience capstone project 
 
+[Link to Shiny App](https://shinyapps.bren.ucsb.edu/CalDrought/)
+
+![](https://github.com/user-attachments/assets/36d0cc38-f028-4aca-b189-975405e8d2a3)
+
+
 **Authors include:** Tom Gibbens-Matsuyama, Emma Bea Mitchell, Karol Paya, Takeen Shamloo
 
 **Advisor:** Dr. Naomi Tague
