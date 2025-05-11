@@ -13,17 +13,26 @@ This dashboard was created to to visualize urban water drought data currently lo
 
 ### Final Repository File Structure
 ```r
+├── clean_names
+│   ├── supplier_names_with_org_ids.csv
+│   ├── supplier_table.csv
 ├── data/
+│   ├── cal_drinking/
+│   │
 │   ├── five year water shortage outlook
 │   ├── monthly water shortage outlook
 │   ├── historical production and delivery
 │   ├── actual water shortage levels
 │   ├── source names
 │   ├── water district geospatial
-├── Server.R
-├── UI.R
-├── Dashboard_functions/
+├── functions/
     ├──dashboard_function.R
     ├──cleaning_functions.R
+├── .gitignore
+├── README.md
+├── dashboard.Rproj
+├── data_cleaning.R
+├── Server.R
+├── UI.R
 └── README.md
 ```
