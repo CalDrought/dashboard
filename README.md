@@ -12,9 +12,22 @@
 
 **Client:** California Water Data Consortium
 
-## Description:
+## About this repository:
 
 This dashboard was created to to visualize urban water drought data currently located on the [CNRA website](https://data.cnra.ca.gov/dataset/urban-water-data-drought). The data is visualized in the following four ways: An interactive maps that allows users to locate water districts within California, several plotting types that allow users to see trends for each water district, summary statistics for the chosen water district, and missing information for the chosen water district. These visualizations are not meant to only view the current data, but to also give insight on what self-reported data is missing for specific districts. This is to incentivize districts to self report data on a regularly basis other than what is prompted by the state of California. This product is meant for our client, the California Water Data Consortium and other stakeholders working within the California's water domain. 
+
+#### Content Overview
+
+The primary files and folders are:
+
+- `server.R`: Global environment that weaves UI and functions together, consists of many switch commands because of the interactiveness of the dashboard
+- `ui.R`: Overarching UI for the dashboard display
+- `functions/`: Functions for filtering, plot, summary statistics, and NA statistics outputs
+
+The secondary folders consist are:
+
+- `clean_names`: CSV files that incorporated water district name cleaning
+- `data`: CSV and geospatial files
 
 ### Final Repository File Structure
 ```r
