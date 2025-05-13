@@ -22,6 +22,7 @@ library(paletteer)
 source("data_cleaning.R") # Load in data once.
 source("functions/dashboard_functions.R") # Load dashboard plot functions.
 source("functions/calculate_na_summary.R")
+source("functions/tmap_plot_functions.R")
 
 # Subset our list of datasets for `source_name` data.
 source_name <- water_data$source_name
@@ -63,79 +64,42 @@ server <- function(input, output, session) {
     }
   })
   
-  #-----------------------------------------
-  # Load Data: Interactive Tmap Data
-  #-----------------------------------------
-  
-  # Convert our coordinates into spatial data for tmap
-  source_geo <- spatial_data$source_geo |> 
-    select(-c("source_facility_name", "source_facility_activity_status", "source_facility_availability", "source_facility_id"))
-  
-  # Convert our coordinates into spatial data for tmap
-  source_geo <- st_as_sf(source_geo, coords = c("longitude", "latitude"), crs = "EPSG:4269") 
-  st_crs(CA_polygon)
-  
-  # Change CRS of district_shape data
-  district_shape <- spatial_data$district_shape |> 
-    st_transform("EPSG:4269") |>
-    st_make_valid()
-  
-  st_crs(district_shape)
-  
-  # Merge supplier names
-  supplier_data <- read_csv(here("clean_names", "supplier_table.csv"))
-  
-  # Join shortage levels to district shapes
-  districts_with_data <- district_shape |>
-    inner_join(water_data$actual_shortage, by = c("water_syst" = "pwsid")) |>
-    filter(end_date == max(end_date, na.rm = TRUE)) |>
-    left_join(supplier_data, by = "org_id") # Merge in supplier names
-  
-  # Create `<name> - <pwsid>` label for Tmap boundary labels.
-  districts_with_data <- districts_with_data |>
-    mutate(name_pwsid_label = paste0(supplier_name.y, " - ", water_syst), .before = objectid_1)
-
-  # Create `<name> - <org_id>` label for search labels.
-  districts_with_data <- districts_with_data |>
-    mutate(name_org_label = paste0(supplier_name.y, " - ", org_id), .before = objectid_1) |>
-    distinct(org_id, water_syst, .keep_all = TRUE) # make sure duplicate observations aren't causing search issues.
-  
   #------------------------------------------------
   # Search Bar Code
   #------------------------------------------------
   
   # ----- Fill in via on-click of our Tmap -----
-  observeEvent(input$shortage_map_shape_click, {
-    
-    # map selection id's are the labels we provided for each location with 
-    # periods replacing spaces & special characters.
-    raw_id <- input$shortage_map_shape_click$id
-    
-    # fixing the incorrectly formatted labels back to our format so we can
-    # access the corresponding observational data (aka grab the org_id).
-    formatted_label <- raw_id %>%
-      str_replace_all("\\.\\.\\.", " - ") %>%
-      str_replace_all("\\.", " ")
-    
-    # grabbing the full row observations based on the searched name+org label.
-    matched_row <- districts_with_data %>%
-      filter(name_pwsid_label == formatted_label) %>%
-      slice(1)
-    
-    # grab the org_id from the row observation from our search.
-    matched_org_id <- matched_row$org_id
-    
-    # fill in search bar based on selection.
-    if (!is.null(matched_org_id) && length(matched_org_id) > 0) {
-      updateSelectizeInput(session, "search_bar", selected = matched_org_id)
-    }
-  })
+  # observeEvent(input$shortage_map_shape_click, {
+  #   
+  #   # map selection id's are the labels we provided for each location with 
+  #   # periods replacing spaces & special characters.
+  #   raw_id <- input$shortage_map_shape_click$id
+  #   
+  #   # fixing the incorrectly formatted labels back to our format so we can
+  #   # access the corresponding observational data (aka grab the org_id).
+  #   formatted_label <- raw_id %>%
+  #     str_replace_all("\\.\\.\\.", " - ") %>%
+  #     str_replace_all("\\.", " ")
+  #   
+  #   # grabbing the full row observations based on the searched name+org label.
+  #   matched_row <- spatial_data$actual_shortage_by_district %>%
+  #     filter(name_pwsid_label == formatted_label) %>%
+  #     slice(1)
+  #   
+  #   # grab the org_id from the row observation from our search.
+  #   matched_org_id <- matched_row$org_id
+  #   
+  #   # fill in search bar based on selection.
+  #   if (!is.null(matched_org_id) && length(matched_org_id) > 0) {
+  #     updateSelectizeInput(session, "search_bar", selected = matched_org_id)
+  #   }
+  # })
   
   # ----- Fill in via search -----
   observe({
     
     # Linking org_id+name labels to org_id values.
-    org_choices <- setNames(districts_with_data$org_id, districts_with_data$name_org_label)
+    org_choices <- setNames(water_data$supplier_data$org_id, water_data$supplier_data$name_with_id)
     
     # Saving current selection.
     current_selection <- isolate(input$search_bar)
@@ -150,52 +114,39 @@ server <- function(input, output, session) {
     }
   })
   
-  #-----------T-------------------------------------
+  #------------------------------------------------
   # Render Tmap of California
   #------------------------------------------------
   
-  # Render Tmap of california.
-  output$shortage_map <- renderTmap({
-    tmap_mode("view")  # interactive mode.
+  # Render plot controls here.
+  output$tmap_by_dataset <- renderTmap({
     
-    # Build base layers.
-    base_map <- 
-      tm_shape(districts_with_data) +
-      tm_fill("state_standard_shortage_level", 
-              title = "Shortage Level", 
-              palette = "Reds", 
-              style = "cat",
-              labels = c("0", "1", "2", "3", "4"),
-              popup.vars = FALSE,
-              id = "name_pwsid_label") +
-      tm_borders() + 
-      
-      # move the legend into the bottom right.
-      tm_view(
-        view.legend.position  = c("right", "bottom"),   # moves the legend to bottom right.
-        control.position = c("left", "bottom")    # moves the layer picker there too.
-      )
+    # Need dataset, org_id, start/end dates.
+    req(input$dataset_selector, input$search_bar)
     
-    base_map
-  })
-  
-  # actual_shortage_fun <- function(id) {
-  #   df <- water_data$actual_shortage %>%
-  #     filter(org_id == id)
-  #   
-  #   ggplot(df, aes(x = start_date, 
-  #                  y = state_standard_shortage_level)) +
-  #     geom_col(fill = "lightblue", color = "black") +
-  #     # Force the y-axis to range from 0 to 6 (since you mentioned 0 through 6)
-  #     scale_y_continuous(limits = c(0, 6), breaks = 0:6) +
-  #     labs(
-  #       x = "Forecast Start Date",
-  #       y = "Shortage Level (1–6)",
-  #       title = paste("Forecasted shortage level for", id)
-  #     ) +
-  #     theme_minimal()
-  #   
-  # }
+    # Depending on the dataset you select the Tmap render will change.
+    switch(input$dataset_selector,
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Actual Shortage Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           "actual_shortage" = actual_shortage_tmap(),
+             
+             ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+             ##  ~ Monthly Water Outlook Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           "monthly_water_outlook" = monthly_outlook_tmap(),
+             
+             ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+             ##  ~ Five Year Outlook Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           "five_year_outlook" = five_year_outlook_tmap(),
+             
+             ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+             ##  ~ Historical Production Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           "historical_production" = historical_production_tmap()
+           )
+    })
   
   #------------------------------------------------
   # Plot outputs widget + widgets

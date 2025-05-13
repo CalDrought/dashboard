@@ -546,16 +546,17 @@ actual_plot_function <- function(id, date){
   
   # Plot Water shortage levels for Goleta 
   ggplot(actual_filter_function(id, date), aes(x = start_date, y = state_standard_shortage_level)) +
-    geom_col(fill = "orange3", width = 20) +
+    geom_col(fill = "orange3", width = 20, color = "orange3") +
     
     # Format the x-axis to show month & year (e.g., "Mar 2022")
     scale_x_date(
       date_labels = "%b %Y",
-      date_breaks = "1 month",
+      date_breaks = "2 months",
       expand = c(0.01, 0.01)) +
     
     scale_y_continuous(
-      breaks = c(1,2,3,4,5,6)
+      breaks = c(1,2,3,4,5,6),
+      limits = c(0,6)
     ) +
     
     labs(x = "Month",

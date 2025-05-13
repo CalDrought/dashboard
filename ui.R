@@ -105,7 +105,7 @@ ui <- fluidPage(
            column(5, style = "display: flex; padding-right: 0px;",
                   column(12, style = "padding: 0; border: 1px double black;",
                          div(style = "position: relative; width: 100%; height: 100%",
-                             tmapOutput("shortage_map", height = "100%"),
+                             tmapOutput("tmap_by_dataset", height = "100%"),
                              div(
                                style = "position: absolute; top: 10px; left: 55px; width: calc(100% - 100px)",
                                selectizeInput("search_bar", label = NULL, choices = NULL, width = "100%",
@@ -132,6 +132,10 @@ ui <- fluidPage(
   ),
   
 
+
+
+  # Row for the second half of the page
+  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                  Bottom Section: Summary Stats & NA Values               ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
