@@ -4,10 +4,12 @@ library(tidyverse)
 library(sf)
 library(tmap)
 
+source("functions/name_cleaning.R")
+
 # ------- Loading Datasets on Call-------
 
 # Import cleaned supplier names. Put it outside the functions as I use it in both our functions below.
-supplier_data <- read_csv(here("clean_names", "supplier_names_with_three_columns.csv"))
+#supplier_data <- read_csv(here("clean_names", "supplier_names_with_three_columns.csv"))
 
 load_water_data <- function() {
   actual_shortage <- read_csv(here("data", "actual_water_shortage_level.csv")) |>
@@ -23,7 +25,22 @@ load_water_data <- function() {
     clean_names()
   
   source_name <- read_csv(here("data", "source_name.csv")) |>
-    clean_names()
+    clean_names() 
+  
+  historical_clean <- clean_supplier_name(historical_production, "water_system_name")
+  fiveyr_clean <- clean_supplier_name(five_year_outlook, "supplier_name")
+  monthly_clean <- clean_supplier_name(monthly_water_outlook, "supplier_name")
+  actual_clean <- clean_supplier_name(actual_shortage, "supplier_name")
+  
+  supplier_data <- bind_rows(
+    historical_clean %>% select(org_id, supplier_name),
+    fiveyr_clean %>% select(org_id, supplier_name),
+    monthly_clean %>% select(org_id, supplier_name),
+    actual_clean %>% select(org_id, supplier_name)
+  ) %>%
+    distinct() |> 
+    mutate(name_with_id = paste(supplier_name, "-", org_id))
+  
   
   list(
     actual_shortage = actual_shortage,
@@ -78,3 +95,12 @@ load_spatial_data <- function() {
 }
 
 spatial_data <- load_spatial_data()
+
+
+
+
+
+
+
+
+
