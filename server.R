@@ -639,36 +639,9 @@ server <- function(input, output, session) {
   
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##                       Summary Statistics Reactive UI                     ----
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-  
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                       Summary Statistics Section                         ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##                       Helper: Label Cleaner
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-  
-  pretty_label <- function(raw_label, water_type_context = FALSE) {
-    label <- case_when(
-      raw_label == "water_use_acre_feet" ~ "Water Use",
-      raw_label == "water_supplies_acre_feet" ~ "Water Supply",
-      raw_label == "benefit_supply_augmentation_acre_feet" ~ "Supply Augmentation",
-      raw_label == "benefit_demand_reduction_acre_feet" ~ "Demand Reduction",
-      raw_label == "shortage_surplus_acre_feet" ~ "Shortage/Surplus",
-      raw_label == "total_produced" ~ "Total Produced",
-      raw_label == "total_delivered" ~ "Total Delivered",
-      TRUE ~ str_replace_all(raw_label, "_", " ") %>% str_to_title()
-    )
-    if (water_type_context) {
-      paste0(label, " (Water in Acre-Feet)")
-    } else {
-      paste0(label, " (Acre-Feet)")
-    }
-  }
   
   output$summary_stats <- renderUI({
     req(input$dataset_selector)
@@ -679,7 +652,7 @@ server <- function(input, output, session) {
         style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
         tags$span(actionButton("info_summary", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
       ),
-      bsPopover(id = "info_summary", title = "Information", content = "Displaying summary statistics for the selected dataset.", placement = "right", trigger = "hover", options = list(container = "body")),
+      bsPopover(id = "info_summary", title = "Information", content = "Displaying summary statistics for the selected dataset. These statistics have omitted NAs. Please see the NA values section for more details on missing information.", placement = "right", trigger = "hover", options = list(container = "body")),
       div(style = "text-align: center; margin-bottom: 10px;", h3("Summary Statistics")),
       switch(input$dataset_selector,
              "five_year_outlook" = summary_five_year_ui(),
@@ -728,25 +701,14 @@ server <- function(input, output, session) {
   }
   
   
-  # --- Five Year Outlook Value Boxes ---
-  five_values_function <- function(id, year_range) {
-    water_data$five_year_outlook %>%
-      filter(org_id == id) %>%
-      mutate(forecast_year = lubridate::year(forecast_start_date)) %>%
-      filter(forecast_year >= year_range[1], forecast_year <= year_range[2]) %>%
-      pivot_longer(cols = starts_with(c("water", "benefit")), names_to = "use_supply_aug_red", values_to = "acre_feet") %>%
-      group_by(use_supply_aug_red) %>%
-      summarize(total_value = sum(acre_feet, na.rm = TRUE), .groups = "drop")
-  }
-  
-  # -- 5 yr ---
+  # -- 5 yr value box ---
   render_five_value_box <- function(label) {
     renderValueBox({
       req(input$search_bar, input$date_picker_start, input$date_picker_end)
       start_year <- year(as.Date(input$date_picker_start))
       end_year   <- year(as.Date(input$date_picker_end))
       
-      val <- five_values_function(input$search_bar, c(start_year, end_year)) %>%
+      val <- five_values_function_sum_stat(input$search_bar, c(start_year, end_year)) %>%
         filter(use_supply_aug_red == label) %>%
         pull(total_value)
       
@@ -765,32 +727,11 @@ server <- function(input, output, session) {
   
   
   # --- Monthly Water Outlook Value Boxes ---
-  monthly_values_function <- function(id, date) {
-    water_data$monthly_water_outlook %>%
-      filter(org_id == id) %>%
-      mutate(year_month = format(forecast_start_date, "%Y-%m")) %>%
-      filter(year_month >= format(as.Date(date[1]), "%Y-%m"),
-             year_month <= format(as.Date(date[2]), "%Y-%m")) %>%
-      pivot_longer(cols = starts_with(c("shortage", "benefit")), names_to = "use_supply_aug_red", values_to = "acre_feet") %>%
-      group_by(use_supply_aug_red) %>%
-      summarize(total_acre_feet = sum(acre_feet, na.rm = TRUE), .groups = "drop")
-  }
-  
-  monthly_months_function <- function(id, date) {
-    water_data$monthly_water_outlook %>%
-      filter(org_id == id) %>%
-      mutate(year_month = format(forecast_start_date, "%Y-%m")) %>%
-      filter(year_month >= format(as.Date(date[1]), "%Y-%m"),
-             year_month <= format(as.Date(date[2]), "%Y-%m")) %>%
-      pivot_longer(cols = starts_with(c("shortage", "benefit")), names_to = "use_supply_aug_red", values_to = "acre_feet") %>%
-      group_by(use_supply_aug_red) %>%
-      summarize(num_months = n(), .groups = "drop")
-  }
   
   render_monthly_value <- function(label, color) {
     renderValueBox({
       req(input$search_bar, input$date_picker_start, input$date_picker_end)
-      val <- monthly_values_function(input$search_bar, c(input$date_picker_start, input$date_picker_end)) %>%
+      val <- monthly_values_function_sum_stat(input$search_bar, c(input$date_picker_start, input$date_picker_end)) %>%
         filter(use_supply_aug_red == label) %>%
         pull(total_acre_feet)
       
@@ -825,22 +766,10 @@ server <- function(input, output, session) {
   output$monthly_red_months      <- render_monthly_months("benefit_demand_reduction_acre_feet", "teal")
   
   # --- Actual Shortage Value Boxes ---
-  actual_filter_function <- function(id, date){
-    date_seq <- seq(
-      from = lubridate::ymd(paste0(format(as.Date(date[1]), "%Y-%m"), "-01")),
-      to = lubridate::ymd(paste0(format(as.Date(date[2]), "%Y-%m"), "-01")),
-      by = "1 month"
-    ) %>% format("%Y-%m")
-    
-    water_data$actual_shortage %>%
-      filter(org_id == id) %>%
-      mutate(year_month = format(start_date, "%Y-%m")) %>%
-      filter(year_month %in% date_seq)
-  }
   
   output$average_shortage <- renderValueBox({
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
-    df <- actual_filter_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
+    df <- actual_filter_function_sum_stats(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     avg <- mean(df$state_standard_shortage_level, na.rm = TRUE)
     
@@ -854,7 +783,7 @@ server <- function(input, output, session) {
   lapply(0:6, function(i) {
     output[[paste0("shortage_level_", i)]] <- renderValueBox({
       req(input$search_bar, input$date_picker_start, input$date_picker_end)
-      df <- actual_filter_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
+      df <- actual_filter_function_sum_stats(input$search_bar, c(input$date_picker_start, input$date_picker_end))
       
       count <- sum(df$state_standard_shortage_level == i, na.rm = TRUE)
       
@@ -867,25 +796,11 @@ server <- function(input, output, session) {
   })
   
   # --- Historical Production Value Boxes ---
-  hist_filt_function <- function(id, date) {
-    date_seq <- seq(
-      from = lubridate::ymd(paste0(format(as.Date(date[1]), "%Y-%m"), "-01")),
-      to = lubridate::ymd(paste0(format(as.Date(date[2]), "%Y-%m"), "-01")),
-      by = "1 month"
-    ) %>% format("%Y-%m")
-    
-    water_data$historical_production %>%
-      filter(org_id == id) %>%
-      mutate(year_month = format(start_date, "%Y-%m")) %>%
-      mutate(quantity_acre_feet = as.numeric(quantity_acre_feet),
-             quantity_acre_feet = replace_na(quantity_acre_feet, 0)) %>%
-      filter(year_month %in% date_seq)
-  }
   
   output$total_produced_box <- renderValueBox({
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
-    df <- hist_filt_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
+    df <- hist_filt_function_sum_stats(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     produced_total <- df %>%
       filter(water_produced_or_delivered == "water produced") %>%
@@ -903,7 +818,7 @@ server <- function(input, output, session) {
   output$total_delivered_box <- renderValueBox({
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
-    df <- hist_filt_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
+    df <- hist_filt_function_sum_stats(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     delivered_total <- df %>%
       filter(water_produced_or_delivered == "water delivered") %>%
@@ -920,7 +835,7 @@ server <- function(input, output, session) {
   output$hist_value_boxes <- renderUI({
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
-    df <- hist_filt_function(input$search_bar, c(input$date_picker_start, input$date_picker_end))
+    df <- hist_filt_function_sum_stats(input$search_bar, c(input$date_picker_start, input$date_picker_end))
     
     selected_types <- combined_water_types()
     
@@ -966,6 +881,7 @@ server <- function(input, output, session) {
       }
     )
   })
+  
   
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

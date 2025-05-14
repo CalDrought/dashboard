@@ -8,9 +8,6 @@ source("functions/name_cleaning.R")
 
 # ------- Loading Datasets on Call-------
 
-# Import cleaned supplier names. Put it outside the functions as I use it in both our functions below.
-#supplier_data <- read_csv(here("clean_names", "supplier_names_with_three_columns.csv"))
-
 load_water_data <- function() {
   actual_shortage <- read_csv(here("data", "actual_water_shortage_level.csv")) |>
     clean_names()
