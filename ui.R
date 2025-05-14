@@ -110,7 +110,7 @@ ui <- fluidPage(
                                style = "position: absolute; top: 10px; left: 55px; width: calc(100% - 100px)",
                                selectizeInput("search_bar", label = NULL, choices = NULL, width = "100%",
                                               selected = character(0),
-                                              options = list(placeholder = "Search Districts by Org ID")),
+                                              options = list(placeholder = "Search Districts by Name or Org ID")),
                                tags$i(class = "fa fa-search",
                                       style = "position: absolute; right: 12px; top: 20%; pointer-events: none; color: #888; z-index: 2;")
                              ),

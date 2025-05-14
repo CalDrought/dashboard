@@ -63,12 +63,18 @@ clean_supplier_name <- function(data, col_name, new_col_name = "supplier_name") 
         regex("(.*)[,\\s-]+(city|town) of[,\\s-]*(.*)", ignore_case = TRUE),
         "\\2 Of \\1 \\3"
       ),
+      !!new_col_sym := str_replace_all(
+        !!new_col_sym,
+        regex("^(.+?)[\\s,-]+city\\b", ignore_case = TRUE),
+        "City Of \\1"
+      ),
       
       # Common department renamings
       !!new_col_sym := str_replace(!!new_col_sym, "(\\b[a-z]+) city water dept\\.?$", "city of \\1 water department"),
       !!new_col_sym := str_replace(!!new_col_sym, "(\\b[a-z]+) water dept\\.?$", "city of \\1 water department"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "dept\\.?\\b", "department"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "pw", "public works"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, regex("\\bawa\\.?\\b", ignore_case = TRUE), "amador water district"),
       
       # Suffix standardizations
       !!new_col_sym := str_replace_all(!!new_col_sym, "pud", "public utility district"),
@@ -77,24 +83,31 @@ clean_supplier_name <- function(data, col_name, new_col_name = "supplier_name") 
       !!new_col_sym := str_replace_all(!!new_col_sym, "scwa", "sacramento county water agency"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bwc\\b", "water company"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bwd\\b|\\bw\\.d\\.\\b", "water district"),
-      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bi\\.d\\.?\\b", "irrigation district"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, regex("\\b(i\\.d\\.?|id)\\b", ignore_case = TRUE), "irrigation district"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bu\\.d\\b", "utility district"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bc\\.s\\.d\\b", "community services district"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bagencyd\\b", "agency"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bcorp\\.?\\b", "corporation"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\btud\\b", "tuolumne utilities district"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bcsd\\b", "community services district"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bcwd\\b", "community water district"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bsd\\b", "services district"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bdist\\b", "district"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bcwwd\\b", "county water works district"),
       
       # Company spacing
       !!new_col_sym := str_replace_all(!!new_col_sym, "(?i)(company)\\.", "\\1"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "(?i)(company)(?=\\w)", "\\1 "),
       
       # Common abbreviations
-      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bCws\\b", "california water service"),
-      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bGolden State Wc\\b|\\bGswc\\b|\\bGolden State Water Co\\.?\\b", "golden state water company"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, regex("\\bcws\\b", ignore_case = TRUE),"california water service"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, regex("\\bdiv\\b", ignore_case = TRUE),"division"),
+      
+      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bGolden State Wc\\b|\\bGswc\\b|\\bGolden State Water Co\\.?\\b|gswc|\\golden state water co.\\.?\\b", "golden state water company"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bCal[- ]?Am\\b|\\bCal[- ]?American Water.*", "cal am water company"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, regex("\\bco\\.?\\b", ignore_case = TRUE), "company"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, regex("\\bmwd\\.?\\b", ignore_case = TRUE), "municipal water district"),
+      
       
       # Fix Thousand Oaks variants
       !!new_col_sym := if_else(
@@ -147,7 +160,7 @@ clean_supplier_name <- function(data, col_name, new_col_name = "supplier_name") 
       !!new_col_sym := str_replace_all(!!new_col_sym, "\\bWirrigation Districtor\\b", "windsor"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "maintence", "maintenance"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "San Dima", "- San Dimas"),
-      !!new_col_sym := str_replace_all(!!new_col_sym, "Bell, Bell Gardens|Bell-Bell Gardens", "bell/bell gardens"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, "Bell, Bell Gardens|Bell-Bell Gardens|bell, bell gardens|bell-bell gardens", "bell/bell gardens"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "coachella vwater|coachella vwd", "Coachella Valley Water"),
       
       # Normalize hyphen spacing
@@ -155,9 +168,10 @@ clean_supplier_name <- function(data, col_name, new_col_name = "supplier_name") 
       
       # Clean up repeat words
       !!new_col_sym := str_replace_all(!!new_col_sym, "water company\\s+water company", "water company"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, "companypany", "company"),
       
       # Preserve KOA acronym
-      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bKoa\\b", "KOA"),
+      !!new_col_sym := str_replace_all(!!new_col_sym, "\\bKoa\\b|koa", "KOA"),
       !!new_col_sym := str_replace_all(!!new_col_sym, "cal - am", "cal am"),     
       
       # Final cleanup
