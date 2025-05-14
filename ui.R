@@ -5,6 +5,7 @@ library(shinyjs)
 library(spnaf)
 library(shinyBS)
 library(paletteer)
+library(shinycssloaders)
 source("data_cleaning.R") # Load in data once.
 
 # Load the dataset names to be used for UI dropdown
