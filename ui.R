@@ -8,7 +8,7 @@ library(paletteer)
 source("data_cleaning.R") # Load in data once.
 
 # Load the dataset names to be used for UI dropdown
-water_data <- load_water_data()
+# water_data <- load_water_data() 
 dataset_labels <- names(water_data) |> 
   setNames(toTitleCase(gsub("_", " ", names(water_data))))
 
