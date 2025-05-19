@@ -122,7 +122,7 @@ server <- function(input, output, session) {
   output$tmap_by_dataset <- renderTmap({
     
     # Need dataset, org_id, start/end dates.
-    req(input$dataset_selector, input$search_bar)
+    req(input$dataset_selector)
     
     # Depending on the dataset you select the Tmap render will change.
     switch(input$dataset_selector,
@@ -131,18 +131,18 @@ server <- function(input, output, session) {
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            "actual_shortage" = actual_shortage_tmap(),
              
-             ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             ##  ~ Monthly Water Outlook Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Monthly Water Outlook Tmap  ----
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            "monthly_water_outlook" = monthly_outlook_tmap(),
              
-             ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             ##  ~ Five Year Outlook Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Five Year Outlook Tmap  ----
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            "five_year_outlook" = five_year_outlook_tmap(),
              
-             ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             ##  ~ Historical Production Tmap  ----
+           ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           ##  ~ Historical Production Tmap  ----
            ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            "historical_production" = historical_production_tmap()
            )
