@@ -12,7 +12,80 @@ source("data_cleaning.R") # Load in data once.
 dataset_labels <- names(water_data) |> 
   setNames(toTitleCase(gsub("_", " ", names(water_data))))
 
-ui <- fluidPage(
+ui <- navbarPage(
+  "California Water Data Consortium",
+  tabPanel(
+    title = "Home",
+    fluidPage(
+      
+      # BEGIN BOX FOR ENTIRE PAGE
+      box(
+        width = NULL,
+        
+        # title
+        h2(tags$strong("Welcome to the Urban Water Data Dashboard"), style = "font-size: 35px"),
+        
+        column(
+          width = 7,
+          
+          # text description
+          includeMarkdown("text/homepage_intro.Rmd")),
+        
+        column(
+          width = 5,
+          style = "border: 1px double black; background-color:#C2E0FF;",
+          
+          
+          # text description
+          includeMarkdown("text/homepage_box.Rmd")
+          
+        ),
+        
+        fluidRow(
+          column(
+            width = 12,
+            
+            # text description
+            includeMarkdown("text/homepage_text.Rmd") 
+            
+          )),
+        
+        fluidRow(
+          column(
+            width = 6,
+            style = "border: 1px double black; background-color:#C2E0FF;",
+            
+            # text description
+            includeMarkdown("text/homepage_limitations.Rmd")
+          ),
+          column(
+            width = 6,
+            
+            # text description
+            includeMarkdown("text/homepage_CWDC.Rmd")
+          )
+        ),
+        
+        fluidRow(
+          column(
+            width = 12,
+            
+            includeMarkdown("text/homepage_end.Rmd")
+            
+            
+          )
+        )
+        
+        
+      )
+      
+      
+    )
+    
+  ), # end home page
+  
+  tabPanel(
+    title = "Dashboard",
   
   useShinyjs(),
   
@@ -43,11 +116,7 @@ ui <- fluidPage(
     }
   "),
   
-  navbarPage(
-    "California Water Data Consortium",
-    tabPanel("Home"),
-    tabPanel("Dashboard")
-  ),
+  
   
   fluidRow(
     column(12, style = "display: flex; align-items: stretch;",
@@ -163,4 +232,5 @@ ui <- fluidPage(
   
   
   
+)
 )
