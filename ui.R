@@ -126,18 +126,8 @@ ui <- navbarPage(
                            selectInput("dataset_selector", "Select Dataset", choices = NULL, width = "100%")
                     ),
                     column(7, uiOutput("plot_controls")),
-                    column(1,
-                           div(style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
-                               tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
-                           ),
-                           bsPopover(
-                             id = "info_graph",
-                             title = "Information",
-                             content = "To generate the graph, select a water district/Org ID and specify the desired date range.",
-                             placement = "right",
-                             trigger = "hover",
-                             options = list(container = "body")
-                           )
+                    column(1, uiOutput("plot_info")
+                           
                     ),
                     conditionalPanel(
                       condition = "input.dataset_selector == 'historical_production'",
@@ -190,7 +180,7 @@ ui <- navbarPage(
                                id = "info_map",
                                title = "Information",
                                content = "Choose a water district/Org ID by either clicking an area on the map or typing in the search bar.",
-                               placement = "right",
+                               placement = "left",
                                trigger = "hover",
                                options = list(container = "body")
                              )
