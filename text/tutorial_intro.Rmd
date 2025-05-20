@@ -1,0 +1,6 @@
+---
+title: "tutorial_intro"
+output: html_document
+---
+
+#### This dashboard provides an interactive way to explore water management data in different urban water districts across California. This tool allows you to look at measured and forecasted water data through time-series plots, interactive maps, summary statistics, and a summary of missing values. 

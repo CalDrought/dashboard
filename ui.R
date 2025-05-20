@@ -24,65 +24,29 @@ ui <- navbarPage(
         
         # title
         h2(tags$strong("Welcome to the Urban Water Data Dashboard"), style = "font-size: 35px"),
+        HTML('<img src="images/dwr_homepage_pic.png" width="900">')
         
-        column(
-          width = 7,
-          
-          # text description
-          includeMarkdown("text/homepage_intro.Rmd")),
-        
-        column(
-          width = 5,
-          style = "border: 1px double black; background-color:#C2E0FF;",
-          
-          
-          # text description
-          includeMarkdown("text/homepage_box.Rmd")
-          
-        ),
-        
-        fluidRow(
-          column(
-            width = 12,
-            
-            # text description
-            includeMarkdown("text/homepage_text.Rmd") 
-            
-          )),
-        
-        fluidRow(
-          column(
-            width = 6,
-            style = "border: 1px double black; background-color:#C2E0FF;",
-            
-            # text description
-            includeMarkdown("text/homepage_limitations.Rmd")
-          ),
-          column(
-            width = 6,
-            
-            # text description
-            includeMarkdown("text/homepage_CWDC.Rmd")
-          )
-        ),
-        
-        fluidRow(
-          column(
-            width = 12,
-            
-            includeMarkdown("text/homepage_end.Rmd")
-            
-            
-          )
-        )
-        
-        
-      )
-      
-      
-    )
-    
-  ), # end home page
+  ))),
+  tabPanel(
+    title = "Tutorial",
+    h2(tags$strong("Learn How to Use This Dashboard!"), style = "font-size: 35px"),
+    fluidRow( 
+      column(
+        width = 12,
+        includeMarkdown("text/tutorial_intro.Rmd"),
+    HTML('<img src="images/dashboard_overview.png" width="900">'))),
+    fluidRow(
+      column(
+        width = 12,
+      includeMarkdown("text/tutorial_overview.Rmd")
+    )),
+    fluidRow(
+      column(
+        width = 12,
+      HTML('<img src="images/select_dataset2.png" width="900">'),
+      includeMarkdown("text/tutorial_dataset_select.Rmd")
+    ))
+  ),
   
   tabPanel(
     title = "Dashboard",
@@ -222,5 +186,76 @@ ui <- navbarPage(
   
   
   
-)
+),
+
+tabPanel(
+  title = "About",
+  fluidPage(
+    
+    # BEGIN BOX FOR ENTIRE PAGE
+    box(
+      width = NULL,
+      
+      # title
+      h2(tags$strong("Learn More About the Urban Water Data Dashboard"), style = "font-size: 35px"),
+      
+      column(
+        width = 7,
+        
+        # text description
+        includeMarkdown("text/about_intro.Rmd")),
+      
+      column(
+        width = 5,
+        style = "border: 1px double black; background-color:#C2E0FF;",
+        
+        
+        # text description
+        includeMarkdown("text/about_box.Rmd")
+        
+      ),
+      
+      fluidRow(
+        column(
+          width = 12,
+          
+          # text description
+          includeMarkdown("text/about_text.Rmd") 
+          
+        )),
+      
+      fluidRow(
+        column(
+          width = 6,
+          style = "border: 1px double black; background-color:#C2E0FF;",
+          
+          # text description
+          includeMarkdown("text/about_limitations.Rmd")
+        ),
+        column(
+          width = 6,
+          
+          # text description
+          includeMarkdown("text/about_CWDC.Rmd")
+        )
+      ),
+      
+      fluidRow(
+        column(
+          width = 12,
+          
+          includeMarkdown("text/about_end.Rmd")
+          
+          
+        )
+      )
+      
+      
+    )
+    
+    
+  )
+  
+) # end about page
+
 )
