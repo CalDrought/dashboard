@@ -194,5 +194,5 @@ historical_production_tmap <- function(){
     )
   
   # Return tmap.
-  historical_production_tmap
+  historical_tmap
 }
