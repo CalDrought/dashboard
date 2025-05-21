@@ -1,0 +1,5 @@
+---
+title: "tutorial_widget_one_hist"
+output: html_document
+---
+We have three new selection options. Delivery type, production type, and totals.

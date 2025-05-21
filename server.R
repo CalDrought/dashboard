@@ -246,7 +246,7 @@ server <- function(input, output, session) {
       # same overall bounds for now
       updateAirDateInput(
         session, "date_picker_end",
-        value = dr$default,
+        value = dr$maxDate,
         options = list(
           minDate = dr$minDate,
           maxDate = dr$maxDate
@@ -278,62 +278,165 @@ server <- function(input, output, session) {
     }
   })
   
+  # observeEvent(input$date_picker_start, {
+  #   req(input$date_picker_start)
+  #   
+  #   start <- as.Date(input$date_picker_start)
+  #   dr <- date_range()
+  #   
+  #   # Get current end date or fall back to max
+  #   current_end <- input$date_picker_end
+  #   end <- if (!is.null(current_end)) as.Date(current_end) else dr$maxDate
+  #   
+  #   # If out of bounds, use max date
+  #   if (end < start || end > dr$maxDate) {
+  #     end <- dr$maxDate
+  #   }
+  #   
+  #   updateAirDateInput(
+  #     session, "date_picker_end",
+  #     value = end,
+  #     options = list(
+  #       minDate = start,
+  #       maxDate = dr$maxDate
+  #     )
+  #   )
+  # })
+  
   observeEvent(input$date_picker_start, {
     req(input$date_picker_start)
+    req(input$dataset_selector)
     
     start <- as.Date(input$date_picker_start)
-    dr <- date_range()
     
-    # Get current end date or fall back to max
+    # Get correct date bounds depending on dataset type
+    if (input$dataset_selector == "five_year_outlook") {
+      bounds <- year_range()
+    } else {
+      bounds <- date_range()
+    }
+    
+    # Get current end or fallback
     current_end <- input$date_picker_end
-    end <- if (!is.null(current_end)) as.Date(current_end) else dr$maxDate
+    end <- if (!is.null(current_end)) as.Date(current_end) else bounds$maxDate
     
-    # If out of bounds, use max date
-    if (end < start || end > dr$maxDate) {
-      end <- dr$maxDate
+    # Check if end is out of bounds or before start
+    if (end < start || end > bounds$maxDate) {
+      end <- bounds$maxDate
     }
     
     updateAirDateInput(
-      session, "date_picker_end",
+      session,
+      "date_picker_end",
       value = end,
       options = list(
         minDate = start,
-        maxDate = dr$maxDate
+        maxDate = bounds$maxDate
       )
     )
   })
   
-  observeEvent({
-    input$date_picker_start
-    input$dataset_selector
-  }, {
-    req(input$dataset_selector == "five_year_outlook")
-    req(input$date_picker_start)
-    
-    start <- as.Date(input$date_picker_start)
-    yr <- year_range()
-    
-    current_end <- input$date_picker_end
-    end <- if (!is.null(current_end)) as.Date(current_end) else yr$maxDate
-    
-    if (end < start || end > yr$maxDate) {
-      end <- yr$maxDate
-    }
-    
-    updateAirDateInput(
-      session, "date_picker_end",
-      value = end,
-      options = list(
-        minDate = start,
-        maxDate = yr$maxDate
-      )
-    )
-  })
+  
+  # observeEvent({
+  #   input$date_picker_start
+  #   input$dataset_selector
+  # }, {
+  #   req(input$dataset_selector == "five_year_outlook")
+  #   req(input$date_picker_start)
+  #   
+  #   start <- as.Date(input$date_picker_start)
+  #   yr <- year_range()
+  #   
+  #   current_end <- input$date_picker_end
+  #   end <- if (!is.null(current_end)) as.Date(current_end) else yr$maxDate
+  #   
+  #   if (end < start || end > yr$maxDate) {
+  #     end <- yr$maxDate
+  #   }
+  #   
+  #   updateAirDateInput(
+  #     session, "date_picker_end",
+  #     value = end,
+  #     options = list(
+  #       minDate = start,
+  #       maxDate = yr$maxDate
+  #     )
+  #   )
+  # })
   
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                          Reactive Plot UI Output                         ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  # -------- START Column 1: Inside Box 1: Icon Buttons -------------------- #
+  
+  # Info button for each dataset
+  output$plot_info <- renderUI({
+    req(input$dataset_selector)
+    
+    switch(input$dataset_selector,
+           
+           "actual_shortage" = tagList(
+             div(style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                 tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             bsPopover(
+               id = "info_graph",
+               title = "Information",
+               content = "Displays observed shortage level values on a scale of 0 to 6, with 1 representing 0-10% water shortage and 6 representing 50% + shortage. For more information, visit the about page",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             )
+           ),
+           
+           "monthly_water_outlook" = tagList(
+             
+             div(style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                 tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             bsPopover(
+               id = "info_graph",
+               title = "Information",
+               content = "Displays forecasted shortage level values on a scale of 0 to 6, with 1 representing 0-10% shortage and 6, representing 50% + shortage. For more information, visit the about page",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             )
+           ),
+           
+           "five_year_outlook" = tagList(
+             div(style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                 tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             bsPopover(
+               id = "info_graph",
+               title = "Information",
+               content = "Displays forecasted water supply, use, augmentation, and reduction over an annual scale. For more information, visit the about page",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             )
+           ),
+           
+           "historical_production" = tagList(
+             div(style = "margin-bottom: 8px; display: flex; justify-content: flex-end;",
+                 tags$span(actionButton("info_graph", label = NULL, icon = icon("info-circle"), class = "btn btn-info btn-xs"))
+             ),
+             bsPopover(
+               id = "info_graph",
+               title = "Information",
+               content = "Displays observed delivered and produced water on a monthly scale, For more information visit the about page",
+               placement = "right",
+               trigger = "hover",
+               options = list(container = "body")
+             )
+           )
+             
+             )
+  }) # END Info Switch Button 
+  
   
   
   # -------- START  Column 1: Inside Box 1: Row 2 (Reactive Plot Controls) -------
@@ -1084,5 +1187,11 @@ server <- function(input, output, session) {
     fluidRow(value_boxes)
   })
   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                       historical toggle for tutorial                     ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  observeEvent(input$show_more, {
+    toggle("historical_section")
+  })
 } # End of server 

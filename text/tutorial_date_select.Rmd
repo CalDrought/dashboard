@@ -1,0 +1,6 @@
+---
+title: "tutorial_date_select"
+output: html_document
+---
+
+Here you will select the date range you are interested in seeing. Each dataset has a different available time range, which will automatically change during the dataset selection. To select a date range click on the calendar icon on the start and end date selectors and click your desired dates. 

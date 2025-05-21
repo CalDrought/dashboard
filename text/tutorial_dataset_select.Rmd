@@ -1,0 +1,19 @@
+---
+title: "tutorial_dataset_select"
+output: html_document
+---
+
+The first thing you will do in the dashboard is select a dataset. By clicking this box you can see the four different dataset options.
+
+#### How to know what dataset to choose?
+
+There are four different datasets available to be looked at. Your selection depends on what information you're interested in looking at. Your four dataset options are: 
+
+**Reported Monthly Shortage Levels:** When reported monthly shortage levels is select the graph will show a bar plot of water shortage levels from 0-6 for the selected district and time range. These levels are calculated by water shortage percentage (0:0% shortage, 1:10% shortage, 2:20% shortage, 3:30% shortage, 4:40% shortage, 5:50% shortage, 6:over 50% shortage). The map will show the average of shortage level from the latest year recorded in the data, by water district. Please be aware that data is not completely up to date.
+
+**Five Year Outlook Water Shortage/Surplus:** When five year outlook water shortage/surplus is selected, the graph will show bar plot of a **forecast** of use, supply, supply augmentation, and demand reduction for selected district and time range. This data is **forecasted** data for five years in the future if this district was going through the last five consecutive worst years of drought (similar to a worst case scenario drought forecast). The map will show the difference between predicted supply and use (supply - use) for the most recent year. Please be aware that data is not completely up to date.
+
+**Historical Water Production/Delivery:** When the historical water production/delivery dataset is selected, the graph will show line plot of water production and delivery amounts (water in acre-feet) grouped by source and sector for the selected district and date range. When the historical water production/ delivery dataset is selected, additional selectors will appear to narrow down produced and delivered water types. The map will show the difference between produced amount of water and delivered amount of water (produced - delivered) for the most recent year in the data. Please be aware that data is not completely up to date.
+
+**Monthly Surplus/Shortage Outlook:** When the monthly surplus/shortage dataset is selected, the graph will show a bar plot of the **forecasted** surplus and shortage (negative values are shortage, positive are surplus), supply augmentation, and demand reduction for every month of the selected district and date range. The will map show mean **forecasted** shortage level ((0:0% shortage, 1:10% shortage, 2:20% shortage, 3:30% shortage, 4:40% shortage, 5:50% shortage, 6:over 50% shortage) for the latest year in the data. Please be aware that data is not completely up to date.
+

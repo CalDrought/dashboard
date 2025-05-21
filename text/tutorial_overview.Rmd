@@ -1,0 +1,6 @@
+---
+title: "tutorial_overview"
+output: html_document
+---
+
+Open up the dashboard and you'll be greeted with this page. Let's learn how to customize this dashboard to show you exactly what you want to see.

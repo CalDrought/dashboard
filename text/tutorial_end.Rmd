@@ -1,0 +1,6 @@
+---
+title: "tutorial_end"
+output: html_document
+---
+
+**For more information on the data in this dashboard and to understand the motivation behind it, please see the about page. You can also [visit the portal](https://data.cnra.ca.gov/dataset/urban-water-data-drought) where the data is posted on the California Natural Resources Agency website.**

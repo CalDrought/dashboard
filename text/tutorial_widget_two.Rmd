@@ -1,0 +1,6 @@
+---
+title: "tutorial_widget_two"
+output: html_document
+---
+
+This map is interactable, it can be zoomed in and out, and you can click on water district boundaries to select district that you want to see information about on the entire dashboard. 

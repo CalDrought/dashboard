@@ -1,0 +1,8 @@
+---
+title: "tutorial_widget_one"
+output: html_document
+---
+
+**Now all your data has populated! But what are we actually looking at?**
+
+The first thing you'll look at in the dashboard is the time series plot. What renders in this plot is dependent on what dataset, date range, and district you selected. If you have selected the historical production/delivery, you will see more options selection options appear. Any other dataset selected will not have any more selectors. 

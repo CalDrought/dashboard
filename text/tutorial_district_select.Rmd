@@ -1,0 +1,6 @@
+---
+title: "tutorial_district_select"
+output: html_document
+---
+
+Here you can select the district you are interested in viewing. You have multiple options for selecting your district. You can click the search districts by ORG ID. Here, you can either type in the name of the district you are interested in looking at or the org id of the district you are interested in. When you click the box all district options will pop-up and you can also scroll through all of the districts to find the one you're interested in. 
