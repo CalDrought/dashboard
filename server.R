@@ -30,41 +30,6 @@ source_name <- water_data$source_name
 
 server <- function(input, output, session) {
   
-  
-  #-----------------------------------------
-  # Toggle Button Logic for Facility Type and Shortage Year Headers
-  #-----------------------------------------
-  
-  # facility_type toggle button actions.
-  observeEvent(input$toggle_facility_type, {
-    if (input$toggle_facility_type %% 2 == 1) {
-      
-      # Toggle style to button on.
-      removeClass(id = "toggle_facility_type", class = "btn-toggle-off")
-      addClass(id = "toggle_facility_type", class = "btn-toggle-on")
-    } else {
-      
-      # Toggle style to button off
-      removeClass(id = "toggle_facility_type", class = "btn-toggle-on")
-      addClass(id = "toggle_facility_type", class = "btn-toggle-off")
-    }
-  })
-  
-  # shortage_year toggle button actions.
-  observeEvent(input$toggle_shortage_year, {
-    if (input$toggle_shortage_year %% 2 == 1) {
-      
-      # Toggle style to button on.
-      removeClass(id = "toggle_shortage_year", class = "btn-toggle-off")
-      addClass(id = "toggle_shortage_year", class = "btn-toggle-on")
-    } else {
-      
-      # Toggle style to button off.
-      removeClass(id = "toggle_shortage_year", class = "btn-toggle-on")
-      addClass(id = "toggle_shortage_year", class = "btn-toggle-off")
-    }
-  })
-  
   #------------------------------------------------
   # Search Bar Code
   #------------------------------------------------

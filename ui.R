@@ -51,9 +51,31 @@ tabPanel(
       background: white;
       padding-right: 12px;      
     }
+    
     #search_bar + .selectize-control.single .selectize-input::after {
       content: none !important;
     }
+    
+    /* Selectize dropdowns */
+    .round-corner .selectize-input {
+    border-radius: 15px !important;
+    }
+
+    /* Everything but the datepicker text‐field */
+    .round-corner .form-control:not(.sw-air-picker) {
+    border-radius: 15px !important;
+    }
+
+    /* airDatepicker text‐field: only left corners */
+    .round-corner .sw-air-picker.form-control {
+    border-radius: 15px 0 0 15px !important;
+    }
+
+    /* airDatepicker calendar‑button: only right corners */
+    .round-corner .input-group .input-group-addon {
+    border-radius: 0 15px 15px 0 !important;
+    }
+    
     #toggle_facility_type.btn-toggle-off,
     #toggle_shortage_year.btn-toggle-off {
       background-color: #f0f0f0 !important;
@@ -77,6 +99,7 @@ tabPanel(
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   div(
     style = "background-color:#FBFEF9; width: 100%;",
+    class = "round-corner",
     fluidRow(
       column(12, style = "display: flex; align-items: stretch;",
              
@@ -138,7 +161,7 @@ tabPanel(
                                bsPopover(
                                  id = "info_map",
                                  title = "Information",
-                                 content = "Choose a water district/Org ID by either clicking an area on the map or typing in the search bar.",
+                                 content = "Use the search bar to find water districts by name or org ID. Plots reflect district boundaries with the respective governing org. Each one reflects summarized metrics by year showcased in the legend on the bottom right.",
                                  placement = "left",
                                  trigger = "hover",
                                  options = list(container = "body")
