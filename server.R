@@ -1187,5 +1187,11 @@ server <- function(input, output, session) {
     fluidRow(value_boxes)
   })
   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##                       historical toggle for tutorial                     ----
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  observeEvent(input$show_more, {
+    toggle("historical_section")
+  })
 } # End of server 

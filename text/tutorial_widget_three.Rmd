@@ -1,0 +1,6 @@
+---
+title: "tutorial_widget_three"
+output: html_document
+---
+
+Here you can view summary statistics about the data in the dataset that you selected and for the selected time range. Summary statistic types change by dataset. 

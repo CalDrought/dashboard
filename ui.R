@@ -12,100 +12,75 @@ source("data_cleaning.R") # Load in data once.
 dataset_labels <- names(water_data) |> 
   setNames(toTitleCase(gsub("_", " ", names(water_data))))
 
+library(shiny)
+library(shinyjs)
+
 ui <- navbarPage(
   "California Water Data Consortium",
+  
   tabPanel(
     title = "Home",
     fluidPage(
-      
-      # BEGIN BOX FOR ENTIRE PAGE
+      useShinyjs(),  # Moved inside fluidPage
       box(
         width = NULL,
-        
-        # title
         h2(tags$strong("Welcome to the Urban Water Data Dashboard"), style = "font-size: 35px"),
         HTML('<img src="images/dwr_homepage_pic.png" width="900">')
-        
-  ))),
+      )
+    )
+  ),
+  
   tabPanel(
     title = "Tutorial",
-    h2(tags$strong("Learn How to Use This Dashboard!"), style = "font-size: 35px"),
-    fluidRow( 
-      column(
-        width = 12,
-        includeMarkdown("text/tutorial_intro.Rmd"),
-    HTML('<img src="images/dashboard_overview.png" width="900">'))),
-    fluidRow(
-      column(
-        width = 12,
-      includeMarkdown("text/tutorial_overview.Rmd")
-    )),
-    fluidRow(
-      column(
-        width = 12,
-      HTML('<img src="images/select_dataset2.png" width="900">'),
-      includeMarkdown("text/tutorial_dataset_select.Rmd")
-    )),
-    fluidRow(
-      column(
-        width = 12,
-        HTML('<img src="images/select_dates2.png" width="900">'),
-        includeMarkdown("text/tutorial_date_select.Rmd")
+    fluidPage(  # Wrap the whole tab content
+      useShinyjs(),
+      h2(tags$strong("Learn How to Use This Dashboard!"), style = "font-size: 35px"),
+      
+      fluidRow(column(12, includeMarkdown("text/tutorial_intro.Rmd"),
+                      HTML('<img src="images/dashboard_overview.png" width="900">'))),
+      fluidRow(column(12, includeMarkdown("text/tutorial_overview.Rmd"))),
+      fluidRow(column(12, HTML('<img src="images/select_dataset2.png" width="900">'),
+                      includeMarkdown("text/tutorial_dataset_select.Rmd"))),
+      fluidRow(column(12, HTML('<img src="images/select_dates2.png" width="900">'),
+                      includeMarkdown("text/tutorial_date_select.Rmd"))),
+      fluidRow(column(12, HTML('<img src="images/select_district.png" width="900">'),
+                      includeMarkdown("text/tutorial_district_select.Rmd"))),
+      fluidRow(column(12, HTML('<img src="images/select_district_map.png" width="600">'),
+                      includeMarkdown("text/tutorial_district_select_map.Rmd"))),
+      fluidRow(column(12, HTML('<img src="images/widget_one.png" width="900">'),
+                      includeMarkdown("text/tutorial_widget_one.Rmd"))),
+      
+      # Toggle Button
+      fluidRow(column(12, actionButton("show_more", "Show what additional historical production/delivery selectors mean"))),
+      
+      # Hidden Section
+      hidden(
+        div(id = "historical_section",
+            fluidRow(column(12, HTML('<img src="images/widget_one_historical_selector.png" width="500">'),
+                            includeMarkdown("text/tutorial_widget_one_hist.Rmd"))),
+            fluidRow(column(12, HTML('<img src="images/widget_one_hist_del.png" width="500">'),
+                            includeMarkdown("text/tutorial_widget_one_hist_del.Rmd"))),
+            fluidRow(column(12, HTML('<img src="images/widget_one_hist_prod.png" width="500">'),
+                            includeMarkdown("text/tutorial_widget_one_hist_prod.Rmd"))),
+            fluidRow(column(12, HTML('<img src="images/widget_one_hist_total.png" width="500">'),
+                            includeMarkdown("text/tutorial_widget_one_hist_total.Rmd")))
+        )
       )
-    ),
-    fluidRow(
-      column(
-        width = 12,
-        HTML('<img src="images/select_district.png" width="900">'),
-        includeMarkdown("text/tutorial_district_select.Rmd")
-      )
-    ),
-    fluidRow(
-      column(
-        width = 12,
-        HTML('<img src="images/select_district_map.png" width="600">'),
-        includeMarkdown("text/tutorial_district_select_map.Rmd")
-      )
-    ),
-    fluidRow(
-      column(
-        width = 12,
-        HTML('<img src="images/widget_one.png" width="900">'),
-        includeMarkdown("text/tutorial_widget_one.Rmd")
-      )
-    ),
-    fluidRow(
-      column(
-        width = 12,
-        HTML('<img src="images/widget_one_historical_selector.png" width="500">'),
-        includeMarkdown("text/tutorial_widget_one_hist.Rmd")
-      )
-    ),
-   
-  fluidRow(
-    column(
-      width = 12,
-      HTML('<img src="images/widget_one_hist_del.png" width="500">'),
-      includeMarkdown("text/tutorial_widget_one_hist_del.Rmd")
-    )
-    
+    ,
+  fluidRow(column(12, HTML('<img src="images/widget_two.png" width="900">'),
+                  includeMarkdown("text/tutorial_widget_two.Rmd")))
+),
+
+fluidRow(column(12, HTML('<img src="images/widget_three.png" width="900">'),
+                includeMarkdown("text/tutorial_widget_three.Rmd"))),
+
+fluidRow(column(12, HTML('<img src="images/widget_four.png" width="900">'),
+                includeMarkdown("text/tutorial_widget_four.Rmd"))),
+fluidRow(column(12,
+                includeMarkdown("text/tutorial_end.Rmd")))
   ),
 
-  fluidRow(
-    column(
-      width = 12,
-      HTML('<img src="images/widget_one_hist_prod.png" width="500">'),
-      includeMarkdown("text/tutorial_widget_one_hist_prod.Rmd")
-    )
-  ),
-  fluidRow(
-    column(
-      width = 12,
-      HTML('<img src="images/widget_one_hist_total.png" width="500">'),
-      includeMarkdown("text/tutorial_widget_one_hist_total.Rmd")
-    )
-  )
-  ),
+
   tabPanel(
     title = "Dashboard",
   
