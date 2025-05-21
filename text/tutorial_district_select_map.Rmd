@@ -1,0 +1,6 @@
+---
+title: "tutorial_district_select_map"
+output: html_document
+---
+
+You can also select the dataset you are interested in by clicking on the district on the map. You can scroll in and out on the map using the + or - buttons or your mouse, to find the district and can then click somewhere within the boundaries to select. 

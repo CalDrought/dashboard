@@ -1,0 +1,6 @@
+---
+title: "tutorial_widget_four"
+output: html_document
+---
+
+Here you can view the total amount of missing values in the dataset, time range, and district selected. Missing values refer to entries in the dataset that are marked as NA. *Be aware that missing values may be intentionally OR accidentally missed, there is no way to distinguish the two. See the data limitations section of the about page for information on limitations in the data*
