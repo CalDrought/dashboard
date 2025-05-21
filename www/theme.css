@@ -1,0 +1,13 @@
+/* Change navbar background color */
+.navbar-default {
+  background-color: #C2E0FF;
+  border-color: #C2E0FF;
+}
+
+/* Change the background and text color of the active tab */
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a:hover {
+  background-color: #4E77A1; /* darker shade of #6D99C5 */
+  color: white;
+}
