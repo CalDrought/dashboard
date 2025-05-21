@@ -1,0 +1,6 @@
+---
+title: "tutorial_widget_one_hist_prod"
+output: html_document
+---
+
+Here you can click on the box and choose from multiple different options of production types. This will then populate the values for that production type onto the plot. You can select multiple production types. You can select multiple production and delivery types at the same time as well. 

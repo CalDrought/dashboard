@@ -1,0 +1,6 @@
+---
+title: "tutorial_widget_one_hist_total"
+output: html_document
+---
+
+If you don't want to see individual production and delivery types you can select this check box to see totals for both production and delivery types. You can also select this check box in addition to individual delivery or production types. 

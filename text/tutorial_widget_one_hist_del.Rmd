@@ -1,0 +1,6 @@
+---
+title: "tutorial_widget_one_hist_del"
+output: html_document
+---
+
+Here you can click on the box and choose from multiple different options of delivery types. This will then populate the values for that delivery type onto the plot. You can select multiple delivery types.
