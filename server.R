@@ -18,6 +18,7 @@ library(tools)
 library(bslib)
 library(shinyWidgets)
 library(paletteer)
+library(plotly)
 
 source("data_cleaning.R") # Load in data once.
 source("functions/dashboard_functions.R") # Load dashboard plot functions.
@@ -656,7 +657,7 @@ server <- function(input, output, session) {
   # -------START Column 1: Inside Box 1: Row 3 (Plot Display) --------
   
   # This is where we update the plot functions based on the selection of datasets.
-  output$plot_output <- renderPlot({
+  output$plot_output <- plotly::renderPlotly({
     
     
     # Need dataset, org_id, start/end dates.
@@ -703,7 +704,8 @@ server <- function(input, output, session) {
     )
     
     # Output plot
-    plot
+    plotly::ggplotly(plot, tooltip = "text") %>% 
+      config(displayModeBar = FALSE)
   }) # -------END Column 1: Inside Box 1: Row 3 (Plot Display) --------
   
   

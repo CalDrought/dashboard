@@ -130,7 +130,7 @@ tabPanel(
                                                     multiple = TRUE, width = "100%")
                                  ),
                                  column(2,
-                                        checkboxGroupInput("include_total", "Total Produced and Delivered", choices = "Total")
+                                        checkboxGroupInput("include_total", "Produced & Delivered", choices = "Total")
                                  )
                                )
                         )
@@ -138,7 +138,7 @@ tabPanel(
                     ),
                     fluidRow(
                       column(12,
-                             plotOutput("plot_output", height = "550px")
+                             plotly::plotlyOutput("plot_output", height = "550px")
                       )
                     )
              ),
