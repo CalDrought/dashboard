@@ -123,12 +123,6 @@ server <- function(input, output, session) {
   
   # Populate Dataset selection dropdown with our dataset names.
   
-  #old one (can delete): observe({
-  #   # all_dataset_names <- toTitleCase(gsub("_", " ", ((sort(names(water_data)))))) # Using gsub to clean snake case to title case.
-  #   all_dataset_names <- sort(names(water_data)) # sort dataset names.
-  #   updateSelectInput(session, "dataset_selector", choices = all_dataset_names, selected = all_dataset_names[2]) # update dataset dropdown with new selection.
-  # })
-  
   observe({
   # Named datatype: display name (label) = internal_value
     dataset_labels <- c(
@@ -144,7 +138,6 @@ server <- function(input, output, session) {
                     selected = "actual_shortage")
 })
 
-  
   
   
   # ---------- Initializing UI Date Pickers ----------
@@ -244,30 +237,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # observeEvent(input$date_picker_start, {
-  #   req(input$date_picker_start)
-  #   
-  #   start <- as.Date(input$date_picker_start)
-  #   dr <- date_range()
-  #   
-  #   # Get current end date or fall back to max
-  #   current_end <- input$date_picker_end
-  #   end <- if (!is.null(current_end)) as.Date(current_end) else dr$maxDate
-  #   
-  #   # If out of bounds, use max date
-  #   if (end < start || end > dr$maxDate) {
-  #     end <- dr$maxDate
-  #   }
-  #   
-  #   updateAirDateInput(
-  #     session, "date_picker_end",
-  #     value = end,
-  #     options = list(
-  #       minDate = start,
-  #       maxDate = dr$maxDate
-  #     )
-  #   )
-  # })
   
   observeEvent(input$date_picker_start, {
     req(input$date_picker_start)
@@ -302,33 +271,6 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  # observeEvent({
-  #   input$date_picker_start
-  #   input$dataset_selector
-  # }, {
-  #   req(input$dataset_selector == "five_year_outlook")
-  #   req(input$date_picker_start)
-  #   
-  #   start <- as.Date(input$date_picker_start)
-  #   yr <- year_range()
-  #   
-  #   current_end <- input$date_picker_end
-  #   end <- if (!is.null(current_end)) as.Date(current_end) else yr$maxDate
-  #   
-  #   if (end < start || end > yr$maxDate) {
-  #     end <- yr$maxDate
-  #   }
-  #   
-  #   updateAirDateInput(
-  #     session, "date_picker_end",
-  #     value = end,
-  #     options = list(
-  #       minDate = start,
-  #       maxDate = yr$maxDate
-  #     )
-  #   )
-  # })
   
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -568,42 +510,7 @@ server <- function(input, output, session) {
                         maxDate = dr$maxDate
                       )
                )
-             ),
-             
-             # Second row for water type selection
-             fluidRow(
-               
-               # column(6,
-               #        
-               #        # Selecting water type
-               #        selectInput("delivered_type", "Select Deliver Type", c("Agriculture",
-               #                                                               "Single-Family Residential",
-               #                                                               "Commercial/Institutional",
-               #                                                               "Industrial",
-               #                                                               "Landscape Irrigation",
-               #                                                               "Multi-Family Residential",
-               #                                                               "Other",
-               #                                                               "Other Pws",
-               #                                                               "Total"),
-               #                    
-               #                    multiple = TRUE, # Able to select multiple "Types"
-               #                    width = "100%")),  # Selection bar covers all of the fitted area
-               # 
-               # column(6,
-               #        
-               #        # Selecting Production Water Type
-               #        selectInput("produced_type", "Select Produced Type",
-               #                    c("Recycled", "Surface Water", "Groundwater Wells", 
-               #                      "Non-Potable (Total Excluded Recycled)",  "Purchased Or Received From Another Pws",
-               #                      "Sold To Another Pws","Non-Potable Water Sold To Another Pws", "Total"
-               #                    ),
-               #                    multiple = TRUE,
-               #                    width = "100%"))
-               
-               
              ) # END SECOND ROW Water type selection
-             
-             
              
            ) # END HISTORICAL PRODUCTION WIDGET
     )
@@ -659,7 +566,6 @@ server <- function(input, output, session) {
   # This is where we update the plot functions based on the selection of datasets.
   output$plot_output <- plotly::renderPlotly({
     
-    
     # Need dataset, org_id, start/end dates.
     req(input$dataset_selector, input$search_bar, input$date_picker_start, input$date_picker_end)
     
@@ -668,7 +574,7 @@ server <- function(input, output, session) {
     selected_df <- water_data[[selected_name]]
     
     # Extra Requirement for Historical_production
-    if (selected_name == "historical_production"){
+    if (selected_name == "historical_production") {
       req(combined_water_types())
     }
     
@@ -680,14 +586,45 @@ server <- function(input, output, session) {
     # Filtering for years to the proper input format
     # This is used for the "Five_year_outlook" as it is displayed in years
     start_y <- format(as.Date(input$date_picker_start), "%Y")
-    end_y  <- format(as.Date(input$date_picker_end),   "%Y")
+    end_y   <- format(as.Date(input$date_picker_end),   "%Y")
     
     print(c(input$date_picker_start, input$date_picker_end))
     print(c(start_ym, end_ym))
     
     water_types <- combined_water_types()
     
+    # ---------------------------
+    # Check if filtered data exists
+    # ---------------------------
+    filtered_data <- switch(selected_name,
+                            
+                            # Filter function used in Monthly Water Outlook
+                            "monthly_water_outlook" = monthly_filter(input$search_bar, c(start_ym, end_ym)),
+                            
+                            # Filter function used in Five Year Outlook
+                            "five_year_outlook" = five_filter_function(input$search_bar, c(start_y, end_y)),
+                            
+                            # Filter for Historical Production with water type filtering
+                            "historical_production" = hist_filt_function(input$search_bar, c(start_ym, end_ym)) %>%
+                              dplyr::filter(water_type %in% water_types),
+                            
+                            # Filter function used in Actual Shortage
+                            "actual_shortage" = actual_filter_function(input$search_bar, c(start_ym, end_ym))
+    )
+    
+    if (nrow(filtered_data) == 0) {
+      # Return a dummy plot with a message centered if no data is available
+      return(plotly::ggplotly(
+        ggplot() +
+          annotate("text", x = 0, y = 0, label = "No data available for this water district and dataset.",
+                   size = 6, color = "red", fontface = "bold", hjust = 0.5) +
+          theme_void()
+      ))
+    }
+    
+    # ---------------------------
     # Switch statement to change function based on dataset
+    # ---------------------------
     plot <- switch(selected_name,
                    
                    # --- Monthly Water Plot output Function --- #
@@ -707,6 +644,7 @@ server <- function(input, output, session) {
     plotly::ggplotly(plot, tooltip = "text") %>% 
       config(displayModeBar = FALSE)
   }) # -------END Column 1: Inside Box 1: Row 3 (Plot Display) --------
+  
   
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
