@@ -322,6 +322,6 @@ tabPanel(
     
   )
   
-) # end about page
+) # END About Page
 
 )
