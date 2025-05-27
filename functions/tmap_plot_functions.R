@@ -1,10 +1,3 @@
-library(here)
-library(janitor)
-library(tidyverse)
-library(sf)
-library(tmap)
-source("data_cleaning.R")
-
 # Filtering helper function for actual_shortage data.
 actual_shortage_tmap_filtering <- function(){
   
@@ -72,7 +65,6 @@ monthly_outlook_tmap_filtering <- function(){
     filter(year(forecast_start_date) == 2025) |>
     group_by(org_id, pwsid) |>
     summarize(mean_level = mean(state_standard_shortage_level, na.rm = TRUE), .groups = "drop")
-  view(mean_shortages)
   
   # Join monthly_water_outlook w/ spatial boundaries and cleaned supplier names.
   monthly_shortage_by_district <- spatial_data$district_shape |>

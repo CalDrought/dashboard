@@ -1,27 +1,4 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                         Load Required Libraries                             ----
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-library(shiny)            # Core Shiny web framework
-library(shinydashboard)   # Useful for box UI and dashboards
-library(tools)            # Includes toTitleCase(), used to clean up dataset names
-library(shinyjs)          # Enables JavaScript interaction inside Shiny
-library(spnaf)            # Spatial analysis functions for network flows
-library(shinyBS)          # Bootstrap popovers and modals
-library(paletteer)        # For access to a wide variety of color palettes
-
-# Load and clean data once at app start
-source("data_cleaning.R")  # Contains function(s) for loading `water_data`
-
-# Create friendly dataset labels from data object names (used in dropdowns)
-dataset_labels <- names(water_data) |> 
-  setNames(toTitleCase(gsub("_", " ", names(water_data))))
-
-# Redundant but harmless — shiny/shinyjs reloaded again below
-library(shiny)
-library(shinyjs)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                           Define UI with navbarPage                         ----
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

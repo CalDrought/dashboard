@@ -1,35 +1,3 @@
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
-
-# Load packages.
-library(shiny)
-library(shinydashboard)
-library(ggplot2)
-library(tidyverse)
-library(janitor)
-library(shinyjs)
-library(dplyr)
-library(tools)
-library(bslib)
-library(shinyWidgets)
-library(paletteer)
-library(plotly)
-library(DT)
-
-source("data_cleaning.R") # Load in data once.
-source("functions/dashboard_functions.R") # Load dashboard plot functions.
-source("functions/calculate_na_summary.R")
-source("functions/tmap_plot_functions.R")
-source("functions/sum_stat_functions.R")
-
-# Subset our list of datasets for `source_name` data.
-source_name <- water_data$source_name
-
 server <- function(input, output, session) {
   
   #------------------------------------------------
