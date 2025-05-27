@@ -176,31 +176,67 @@ tabPanel(
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##                  Bottom Section: Summary Stats & NA Values               ----
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  # START of bottom panel container (holds both summary stats and NA tables)
   div(
-    style = "background-color:#FBFEF9; width: 100%;",
+    style = "background-color:#FBFEF9; width: 100%;",  # light background color and full width
+    
+    # START of fluid row to horizontally align summary and NA boxes
     fluidRow(
-      column(12, 
-             style = "display: flex; align-items: stretch; margin-top: 15px;",
-             
-             # Bottom-left: Summary Stats
-             column(7,
-                    style = "border: 1px double black; padding: 10px; height: 300px;",
-                    uiOutput("summary_stats")
-             ),
-             
-             # Bottom-right: Missing Info — mimics top row layout
-             column(5,
-                    style = "display: flex; padding-right: 0px;",
-                    column(12,
-                           style = "padding: 0; border: 1px double black; height: 300px;",
-                           uiOutput("na_values")
-                    )
-             )
-      )
-    )
-  )
-),
-
+      
+      # START of single full-width (12 column) layout block
+      column(
+        width = 12,
+        style = "display: flex; align-items: stretch; margin-top: 15px;",  # aligns child columns to same height
+        
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # LEFT SIDE: Summary Statistics section
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        # START of summary stats container (left 7/12 width)
+        column(
+          width = 7,
+          style = "
+          border: 1px double black;     /* styled border */
+          padding: 10px;                /* internal spacing */
+          height: 300px;                /* fixed height to match right panel */
+        ",
+          
+          # Render UI created in output$summary_stats
+          uiOutput("summary_stats")
+        ),
+        # END of summary stats container
+        
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # RIGHT SIDE: Missing Information section
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        # START of missing info container (right 5/12 width)
+        column(
+          width = 5,
+          style = "display: flex; padding-right: 0px;",  # aligns right box flush with border
+          
+          # Inner wrapper to provide padding and border
+          column(
+            width = 12,
+            style = "
+            padding: 0;
+            border: 1px double black;
+            height: 300px;
+          ",
+            
+            # Render UI created in output$na_values
+            uiOutput("na_values")
+          )
+        )
+        # END of missing info container
+        
+      )  # END of full-width column block
+      
+    )  # END of fluidRow
+  )),
+  # END of bottom panel container
+  
 tabPanel(
   title = "Tutorial",
   style = "background-color:#FBFEF9;",
