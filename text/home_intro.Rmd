@@ -3,4 +3,7 @@ title: "home_intro"
 output: html_document
 ---
 
-Welcome to the Urban Water Data Dashboard
+
+
+This dashboard is designed to make it easy for anyone to interact with urban water management data without any spreadsheets or coding! Use this dashboard to view information on water shortage levels, water production and delivery, and forecasted water supply and use. 
+

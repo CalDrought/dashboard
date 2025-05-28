@@ -892,11 +892,12 @@ server <- function(input, output, session) {
       group_by(water_produced_or_delivered, water_type) %>%
       summarize(total_value = sum(quantity_acre_feet, na.rm = TRUE), .groups = "drop") %>%
       mutate(
-        `Produced or Delivered` = water_produced_or_delivered,
+        `Produced or Delivered` = str_to_title(water_produced_or_delivered),
         Type = pretty_label(water_type, water_type_context = TRUE),
         `Total Acre-Feet` = scales::comma(total_value)
       ) %>%
       select(`Produced or Delivered`, Type, `Total Acre-Feet`)
+    
     
     #----------------------------
     # Combine totals and breakdown into one final table
