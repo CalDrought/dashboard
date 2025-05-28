@@ -1,5 +1,3 @@
-source("functions/name_cleaning.R", local = TRUE)
-
 # ---------- Helper function for downloading from CKAN-Datastore ----------
 fetch_cnra_csv <- function(resource_id, show_types = FALSE) {
   url <- sprintf(
