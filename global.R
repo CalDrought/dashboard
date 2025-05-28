@@ -23,11 +23,11 @@ library(DT)               # For tabling data.
 # ---------- Sourcing Files ----------
 # Don't need to source anything in R/ will be auto sourced.
 source(here("R", "data_cleaning.R"), local = TRUE)
-source(here("functions", "tmap_plot_functions.R"), local = TRUE)
-source(here("functions", "dashboard_functions.R"))
-source(here("functions", "calculate_na_summary.R"))
-source(here("functions", "tmap_plot_functions.R"))
-source(here("functions", "sum_stat_functions.R"))
+source(here("R", "tmap_plot_functions.R"))
+source(here("R", "dashboard_functions.R"))
+source(here("R", "calculate_na_summary.R"))
+source(here("R", "tmap_plot_functions.R"))
+source(here("R", "sum_stat_functions.R"))
 
 # ---------- Path for cached data file ----------
 cache_rds <- here("data", "cached_data.rds")
