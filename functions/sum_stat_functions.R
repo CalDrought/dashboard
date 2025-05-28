@@ -23,6 +23,8 @@ pretty_label <- function(raw_label, water_type_context = FALSE) {
     raw_label == "shortage_surplus_acre_feet"           ~ "Shortage/Surplus",
     raw_label == "total_produced"                       ~ "Total Produced",
     raw_label == "total_delivered"                      ~ "Total Delivered",
+    raw_label == "water_delivered"                      ~ "Water Delivered",
+    raw_label == "total_produced"                      ~ "Water Produced",
     TRUE ~ str_replace_all(raw_label, "_", " ") %>% str_to_title()
   )
   
@@ -123,7 +125,7 @@ actual_filter_function_sum_stats <- function(id, date) {
     
     # Format date to year-month and match selected range
     mutate(year_month = format(start_date, "%Y-%m")) %>%
-    filter(year_month %in% date_seq)
+    filter(year_month %in% date_seq) 
 }
 # END of actual_filter_function_sum_stats()
 
