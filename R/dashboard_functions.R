@@ -281,7 +281,9 @@ monthly_filter <- function(id, date){
     # Create new forecast year column
     mutate(year_month = format(forecast_start_date, "%Y-%m")) %>% 
     
-    filter(year_month %in% date)
+    filter(year_month %in% date) %>% 
+    
+    filter(is_annual == "FALSE")
   
   return(monthly_filter)
 }
@@ -290,42 +292,47 @@ monthly_filter <- function(id, date){
 ##                        Monthly Water Plot Function                       ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-monthly_plot_function <- function(id, date){
+monthly_plot_function <- function(id, date) {
   
-  monthly_plot <- monthly_filter(id, date) %>% 
-    
-    filter(is_annual == "FALSE") %>%
-    
+  df <- monthly_filter(id, date) %>%
     pivot_longer(cols = c(shortage_surplus_acre_feet, starts_with("benefit")),
                  names_to = "use_supply_aug_red",
                  values_to = "acre_feet") %>%
-    
-    # ✅ Convert to factor with custom labels
+    filter(is.finite(acre_feet))  # Remove NA, NaN, Inf
+  
+  # 🚨 Check if any valid rows remain
+  if (nrow(df) == 0) {
+    return(
+      ggplot() +
+        annotate("text", x = 0.5, y = 0.5, label = "Data Contains Only NAs values for this Water District.", size = 6, hjust = 0.5) +
+        theme_void()
+    )
+  }
+  
+  # ✅ Proceed with plotting
+  df <- df %>%
     mutate(use_supply_aug_red = factor(
       use_supply_aug_red,
       levels = c("benefit_demand_reduction_acre_feet", 
                  "benefit_supply_augmentation_acre_feet", 
                  "shortage_surplus_acre_feet"),
       labels = c("Demand Reduction", "Supply Augmentation", "Shortage/Surplus")
-    )) %>%
-    
-    ggplot(aes(x = forecast_start_date, y = acre_feet, fill = use_supply_aug_red)) + 
+    ))
+  
+  ggplot(df, aes(x = forecast_start_date, y = acre_feet, fill = use_supply_aug_red)) + 
     geom_col(position = "stack",
              aes(text = paste0("Date: ", forecast_start_date,
                                "<br>Value: ", acre_feet,
                                "<br>Type: ", use_supply_aug_red))) +
-    
     labs(x = "Date",
          y = "Acre-Feet",
          fill = "") +
-    
     scale_fill_manual(values = c(
       "Demand Reduction" = "#D55E00",
       "Supply Augmentation" = "#009E73",
       "Shortage/Surplus" = "#56B4E9"
     )) +
     scale_y_continuous(labels = scales::comma_format()) +
-    
     theme_minimal() +
     theme(
       axis.text.x = element_text(size = rel(1.2), color = "black", angle = 45, hjust = 1),
@@ -333,9 +340,8 @@ monthly_plot_function <- function(id, date){
       axis.title = element_text(size = rel(1.5)),
       legend.text = element_text(size = rel(1))
     )
-  
-  return(monthly_plot)
 }
+
 
 
 

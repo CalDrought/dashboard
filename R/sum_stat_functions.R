@@ -89,7 +89,8 @@ monthly_values_function_sum_stat <- function(id, date) {
     
     # Filter by selected start and end dates
     filter(year_month >= format(as.Date(date[1]), "%Y-%m"),
-           year_month <= format(as.Date(date[2]), "%Y-%m")) %>%
+           year_month <= format(as.Date(date[2]), "%Y-%m"),
+           is_annual == FALSE) %>%
     
     # Pivot to long format for category-wise totals
     pivot_longer(cols = starts_with(c("shortage", "benefit")),
