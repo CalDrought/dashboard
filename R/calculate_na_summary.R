@@ -51,7 +51,8 @@ monthlywater_filter <- function(id, date) {
     mutate(year_month = format(forecast_start_date, "%Y-%m")) %>%
     filter(
       forecast_start_date >= start_date,
-      forecast_start_date <= end_date
+      forecast_start_date <= end_date,
+      is_annual == FALSE
     )
   
   # Check if no data was returned
@@ -118,17 +119,26 @@ historical_filtering <- function(id, date, type = NULL) {
 
 monthly_na <- function(filtered_data) {
   
-  # Assuming filtered_data contains the required columns
+  # 🚨 Safeguard: Check if input is NULL or empty
+  if (is.null(filtered_data) || nrow(filtered_data) == 0) {
+    return(tibble(
+      shortage_na = NA_real_,
+      augmentation_na = NA_real_,
+      demand_red_na = NA_real_
+    ))
+  }
+  
+  # Compute % of NA values if data exists
   monthly_na_summary <- filtered_data %>% 
     summarize(
-      shortage_na = sum(is.na(shortage_surplus_acre_feet))/ n() * 100,
-      augmentation_na = sum(is.na(benefit_supply_augmentation_acre_feet))/ n() * 100,
-      demand_red_na = sum(is.na(benefit_demand_reduction_acre_feet))/ n() * 100
+      shortage_na = sum(is.na(shortage_surplus_acre_feet)) / n() * 100,
+      augmentation_na = sum(is.na(benefit_supply_augmentation_acre_feet)) / n() * 100,
+      demand_red_na = sum(is.na(benefit_demand_reduction_acre_feet)) / n() * 100
     )
   
-  # Return the summary
   return(monthly_na_summary)
 }
+
 
 actual_na <- function(filtered_data) {
   # Count total rows and NAs in state_standard_shortage_level
