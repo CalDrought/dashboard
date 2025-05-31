@@ -11,37 +11,93 @@ ui <- navbarPage(
   header = tags$head(includeCSS("www/theme.css")),
   # END of custom CSS styling
   
+  
+  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #                               Home Tab                                    ----
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   tabPanel(
-    style = "background-color:#FBFEF9;",  # Light background for home page
     title = "Home",
-    
-    fluidPage(
-      useShinyjs(),  # Enable JS for interactivity
+    div(
+      style = "
+      height: 100vh;
+      width: 100vw;
+      background-image: url('images/2022_11_18_FL_0440_Folsom_Lake.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10vh;
+      text-align: center;
+      color: #ffffff;
+      padding-left: 20px;
+      padding-right: 20px;
+      position: relative;
+    ",
       
-      fluidRow(
-        style = "background-color:#C2E0FF;",  # Blue banner background
+      # Main transparent text box
+      div(
+        style = "
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 30px 40px;
+        border-radius: 12px;
+        max-width: 800px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      ",
         
-        # Welcome text (left side)
-        column(
-          width = 5,
-          h2(tags$strong("Welcome to the Urban Water Data Dashboard!"), style = "font-size: 50px"),
-          h3("Visualize and navigate California's urban water data through graphs, maps, and summary statistics")
-        ),
+        h1("Welcome to the Urban Water Dashboard", 
+           style = "font-size: 3em; font-weight: bold; margin-bottom: 20px;"),
         
-        # Hero image (right side)
-        column(
-          width = 7,
-          HTML('<img src="images/dwr_homepage_pic.png" width="900">')
-        )
+        p("This dashboard is designed to make it easy for anyone to interact with urban water management data without any spreadsheets or coding! Use this dashboard to view information on water shortage levels, water production and delivery, and forecasted water supply and use. ", 
+          style = "font-size: 1.5em; margin: 0;")
+      ),
+      
+      # Image credit at bottom
+      div(
+        "Image credit to the California Department of Water Resources",
+        includeMarkdown("text/home_end.Rmd"),
+        style = "
+        position: absolute;
+        bottom: 10px;
+        font-size: 0.8em;
+        color: #eeeeee;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 4px 10px;
+        border-radius: 6px;
+      "
       )
     )
-  ),
-  # END of Home Tab
+  )
   
+  
+    
+    
+  #   fluidPage(
+  #     
+  #     
+  #     fluidRow(
+  #       style = "background-color:#C2E0FF;",  # Blue banner background
+  #       
+  #       # Welcome text (left side)
+  #       column(
+  #         width = 5,
+  #         h2(tags$strong("Welcome to the Urban Water Data Dashboard!"), style = "font-size: 50px"),
+  #         h3("Visualize and navigate California's urban water data through graphs, maps, and summary statistics")
+  #       ),
+  #       
+  #       # Hero image (right side)
+  #       column(
+  #         width = 7,
+  #         HTML('<img src="images/dwr_homepage_pic.png" width="900">')
+  #       )
+  #     )
+  #   )
+  ,
+  # # END of Home Tab
+  # 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #                             Dashboard Tab                                 ----
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
