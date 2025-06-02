@@ -21,13 +21,16 @@ library(plotly)           # Creating interactive plots
 library(DT)               # For tabling data.
 
 # ---------- Sourcing Files ----------
-# Don't need to source anything in R/ will be auto sourced.
-source(here("R", "data_cleaning.R"), local = TRUE)
+source(here("R", "data_cleaning.R"))
+source(here("R", "name_cleaning.R"))
 source(here("R", "tmap_plot_functions.R"))
 source(here("R", "dashboard_functions.R"))
 source(here("R", "calculate_na_summary.R"))
 source(here("R", "tmap_plot_functions.R"))
 source(here("R", "sum_stat_functions.R"))
+
+# ---------- Tmap Options ----------
+tmap_mode("view") # Interactive mode.
 
 # ---------- Path for cached data file ----------
 cache_rds <- here("data", "cached_data.rds")
