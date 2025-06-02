@@ -53,6 +53,15 @@ server <- function(input, output, session) {
   #------------------------------------------------
   # Render Tmap of California
   #------------------------------------------------
+  output$tmap_wrapper <- renderUI({
+    height <- if (input$dataset_selector == "historical_production") {
+      "738px"
+    } else {
+      "700px"
+    }
+    
+    withSpinner(tmapOutput("tmap_by_dataset", height = height), type = 7, color = "lightblue")
+  })
   
   # Render plot controls here.
   output$tmap_by_dataset <- renderTmap({
@@ -535,6 +544,15 @@ server <- function(input, output, session) {
   # This is where we update the plot functions based on the selection of datasets.
   output$plot_output <- plotly::renderPlotly({
     
+    if (is.null(input$search_bar) || input$search_bar == "" || length(input$search_bar) == 0) {
+      return(plotly::ggplotly(
+        ggplot() +
+          annotate("text", x = 0, y = 0, label = "Please select an organization using the search bar.",
+                   size = 6, color = "red", fontface = "bold", hjust = 0.5) +
+          theme_void()
+      ))
+    }
+    
     # Need dataset, org_id, start/end dates.
     req(input$dataset_selector, input$search_bar, input$date_picker_start, input$date_picker_end)
     
@@ -581,7 +599,7 @@ server <- function(input, output, session) {
                             "actual_shortage" = actual_filter_function(input$search_bar, c(start_ym, end_ym))
     )
     
-    if (nrow(filtered_data) == 0) {
+   if (nrow(filtered_data) == 0) {
       # Return a dummy plot with a message centered if no data is available
       return(plotly::ggplotly(
         ggplot() +
@@ -673,21 +691,40 @@ server <- function(input, output, session) {
           # END of section title
           
           # START of dataset-dependent UI rendering
-          switch(
-            input$dataset_selector,
-            
-            # Render 5-year outlook stats
-            "five_year_outlook" = summary_five_year_ui(),
-            
-            # Render monthly water outlook stats
-            "monthly_water_outlook" = summary_monthly_ui(),
-            
-            # Render actual shortage levels summary
-            "actual_shortage" = summary_actual_ui(),
-            
-            # Render historical production & delivery
-            "historical_production" = summary_historical_ui()
-          )
+          if (is.null(input$search_bar) || input$search_bar == "" || length(input$search_bar) == 0) {
+            datatable(
+              tibble(Note = "No organization selected."),
+              options = list(dom = 't'),
+              rownames = FALSE
+            )
+          } else{
+            switch(
+              input$dataset_selector,
+              
+              # Render 5-year outlook stats
+              "five_year_outlook" = summary_five_year_ui(),
+              
+              # Render monthly water outlook stats
+              "monthly_water_outlook" = summary_monthly_ui(),
+              
+              # Render actual shortage levels summary
+              "actual_shortage" = summary_actual_ui(),
+              
+              # Render historical production & delivery
+              "historical_production" = {
+                water_types <- combined_water_types()
+                if (is.null(water_types) || length(water_types) == 0) {
+                  datatable(
+                    tibble(Note = "No water types selected."),
+                    options = list(dom = 't'),
+                    rownames = FALSE
+                  )
+                } else {
+                  summary_historical_ui()
+                }
+              }
+            )
+          }
           # END of dataset-dependent UI
           
         )  # END of tagList
@@ -933,7 +970,7 @@ server <- function(input, output, session) {
                  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                  ##  ~ Historical Production  ----
                  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                 "historical_production" = dataTableOutput("historical_na_table")
+                 "historical_production" = withSpinner(dataTableOutput("historical_na_table"), type = 7, color = "lightblue")
           )
         )
       )
@@ -944,6 +981,14 @@ server <- function(input, output, session) {
   # --- Actual Shortage NA Table ---
   # -----------------------------------------
   output$actual_na_table <- renderDataTable({
+    if (is.null(input$search_bar) || input$search_bar == "" || length(input$search_bar) == 0) {
+      return(datatable(
+        tibble(Note = "No organization selected."),
+        options = list(dom = 't'),
+        rownames = FALSE
+      ))
+    }
+    
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
     df <- actual_filter(input$search_bar, c(input$date_picker_start, input$date_picker_end))
@@ -961,6 +1006,14 @@ server <- function(input, output, session) {
   # --- 5 Year Outlook NA Table ---
   # -----------------------------------------
   output$fiveyr_na_table <- renderDataTable({
+    if (is.null(input$search_bar) || input$search_bar == "" || length(input$search_bar) == 0) {
+      return(datatable(
+        tibble(Note = "No organization selected."),
+        options = list(dom = 't'),
+        rownames = FALSE
+      ))
+    }
+    
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
     df2 <- fiveyr_filter(input$search_bar, c(input$date_picker_start, input$date_picker_end))
@@ -983,6 +1036,14 @@ server <- function(input, output, session) {
   # --- Monthly Water Outlook NA Table ---
   # -----------------------------------------
   output$monthly_na_table <- renderDataTable({
+    if (is.null(input$search_bar) || input$search_bar == "" || length(input$search_bar) == 0) {
+      return(datatable(
+        tibble(Note = "No organization selected."),
+        options = list(dom = 't'),
+        rownames = FALSE
+      ))
+    }
+    
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
     df3 <- monthlywater_filter(input$search_bar, c(input$date_picker_start, input$date_picker_end))
@@ -1003,6 +1064,14 @@ server <- function(input, output, session) {
   # --- Historical Production NA Table ---
   # -----------------------------------------
   output$historical_na_table <- renderDataTable({
+    if (is.null(input$search_bar) || input$search_bar == "" || length(input$search_bar) == 0) {
+      return(datatable(
+        tibble(Note = "No organization selected."),
+        options = list(dom = 't'),
+        rownames = FALSE
+      ))
+    }
+    
     req(input$search_bar, input$date_picker_start, input$date_picker_end)
     
     water_types <- combined_water_types()
@@ -1012,7 +1081,9 @@ server <- function(input, output, session) {
     
     df4 <- historical_filtering(input$search_bar, c(input$date_picker_start, input$date_picker_end), water_types)
     
-    if (nrow(df4) == 0) {
+    if ("Total" %in% water_types && length(water_types) <= 1) {
+      return(datatable(tibble(Note = "Select from the historical production or delivery types available using the dropdown for a more detailed breakdown for this org/date/type."), options = list(dom = 't'), rownames = FALSE))
+    } else if (nrow(df4) == 0) {
       return(datatable(tibble(Note = "No historical production data available for this org/date/type."), options = list(dom = 't'), rownames = FALSE))
     }
     

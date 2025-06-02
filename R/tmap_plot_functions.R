@@ -38,7 +38,7 @@ actual_shortage_tmap_filtering <- function(){
   # Find the latest valid year available.
   last_year <- find_latest_valid_year(water_data$actual_shortage)
   
-  # Computes average shortage across the last valid/availalbe year actual_shortage data. Grouped by org_id & pwsid.
+  # Computes average shortage across the last valid/available year actual_shortage data. Grouped by org_id & pwsid.
   mean_shortages <- water_data$actual_shortage |>
     filter(year(start_date) == last_year) |>
     group_by(org_id, pwsid) |>
@@ -59,7 +59,7 @@ actual_shortage_tmap_filtering <- function(){
 actual_shortage_tmap <- function(){
   
   # Access filtered/cleaned actual_shortage data from helper function.
-  actual_shortage_filtered <- actual_shortage_tmap_filtering()
+  actual_shortage_filtered <- tmap_data$actual_shortage_tmap_data
   
   # Build tmap of mean shortage levels by org_id & pwsid boundary.
   actual_shortage_tmap <-
@@ -113,7 +113,7 @@ monthly_outlook_tmap_filtering <- function(){
 monthly_outlook_tmap <- function(){
   
   # Access filtered/cleaned monthly_water_outlook data from helper function.
-  monthly_outlook_filtered <- monthly_outlook_tmap_filtering()
+  monthly_outlook_filtered <- tmap_data$monthly_outlook_tmap_data
   
   # Build tmap of mean shortage levels by org_id & pwsid boundary.
   monthly_tmap <-
@@ -167,7 +167,7 @@ five_year_outlook_tmap_filtering <- function(){
 five_year_outlook_tmap <- function(){
   
   # Access filtered/cleaned five_year_outlook data from helper function.
-  five_year_filtered <- five_year_outlook_tmap_filtering()
+  five_year_filtered <- tmap_data$five_year_outlook_tmap_data
   
   # Build tmap of the difference between supply & use by org_id & pwsid boundary.
   five_year_tmap <-
@@ -228,7 +228,7 @@ historical_production_tmap_filtering <- function(){
 historical_production_tmap <- function(){
   
   # Access filtered/cleaned historical_production data from helper function.
-  historical_filtered <- historical_production_tmap_filtering()
+  historical_filtered <- tmap_data$historical_production_tmap_data
   
   # Build tmap of the difference between production & delivery by org_id & pwsid boundary.
   historical_tmap <-

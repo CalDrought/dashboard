@@ -19,6 +19,7 @@ library(bslib)            # Adding shiny app themes.
 library(shinyWidgets)     # Extra shiny app widgets/tools.
 library(plotly)           # Creating interactive plots 
 library(DT)               # For tabling data.
+library(shinycssloaders)  # Adding loading spinner ui.
 
 # ---------- Sourcing Files ----------
 source(here("R", "data_cleaning.R"))
@@ -33,6 +34,30 @@ tmap_mode("view") # Interactive mode.
 
 # ---------- Path for cached data file ----------
 cache_rds <- here("data", "cached_data.rds")
+
+spatial_files <- c(
+  here("data", "cal_drinking", "California_Drinking_Water_System_Area_Boundaries.shx"),
+  here("data", "cal_drinking", "California_Drinking_Water_System_Area_Boundaries.shp"),
+  here("data", "cal_drinking", "California_Drinking_Water_System_Area_Boundaries.prj"),
+  here("data", "cal_drinking", "California_Drinking_Water_System_Area_Boundaries.dpf"),
+  here("data", "cal_drinking", "California_Drinking_Water_System_Area_Boundaries.cpg")
+)
+
+script_files <- c(
+  here("R", "data_cleaning.R"),
+  here("R", "name_cleaning.R"),
+  here("R", "tmap_plot_functions.R"),
+  here("R", "dashboard_functions.R"),
+  here("R", "calculate_na_summary.R"),
+  here("R", "sum_stat_functions.R")
+)
+
+latest_time <- function(paths) {
+  times <- sapply(paths, function(p) {
+    if (file.exists(p)) file.info(p)$mtime else as.POSIXct(0)
+  })
+  max(mtimes, na.rm = TRUE)
+}
 
 # Create cache file is it doesn't exists. (UPDATE w/ ADDITIONAL ARGUMENTS SOON)
 if (file.exists(cache_rds)) {
