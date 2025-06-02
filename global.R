@@ -19,6 +19,7 @@ library(bslib)            # Adding shiny app themes.
 library(shinyWidgets)     # Extra shiny app widgets/tools.
 library(plotly)           # Creating interactive plots 
 library(DT)               # For tabling data.
+library(shinycssloaders)  # Adding loading spinner ui.
 
 # ---------- Sourcing Files ----------
 source(here("R", "data_cleaning.R"))
@@ -56,7 +57,7 @@ latest_time <- function(paths) {
     if (file.exists(p)) file.info(p)$mtime else as.POSIXct(0)
   })
   max(mtimes, na.rm = TRUE)
-# }
+}
 
 # Create cache file is it doesn't exists. (UPDATE w/ ADDITIONAL ARGUMENTS SOON)
 if (file.exists(cache_rds)) {

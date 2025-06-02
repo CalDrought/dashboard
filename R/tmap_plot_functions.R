@@ -38,7 +38,7 @@ actual_shortage_tmap_filtering <- function(){
   # Find the latest valid year available.
   last_year <- find_latest_valid_year(water_data$actual_shortage)
   
-  # Computes average shortage across the last valid/availalbe year actual_shortage data. Grouped by org_id & pwsid.
+  # Computes average shortage across the last valid/available year actual_shortage data. Grouped by org_id & pwsid.
   mean_shortages <- water_data$actual_shortage |>
     filter(year(start_date) == last_year) |>
     group_by(org_id, pwsid) |>
