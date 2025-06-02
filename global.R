@@ -26,7 +26,6 @@ source(here("R", "name_cleaning.R"))
 source(here("R", "tmap_plot_functions.R"))
 source(here("R", "dashboard_functions.R"))
 source(here("R", "calculate_na_summary.R"))
-source(here("R", "tmap_plot_functions.R"))
 source(here("R", "sum_stat_functions.R"))
 
 # ---------- Tmap Options ----------
