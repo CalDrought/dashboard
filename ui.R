@@ -211,7 +211,8 @@ ui <- navbarPage(
                  
                  # Main plot output
                  fluidRow(
-                   column(12, plotly::plotlyOutput("plot_output", height = "550px"))
+                   column(12, 
+                          withSpinner(plotly::plotlyOutput("plot_output", height = "550px"), type = 7, color = "lightblue"))
                  )
                ),
                
@@ -222,7 +223,7 @@ ui <- navbarPage(
                    12, style = "padding: 0; border: 1px double black;",
                    div(
                      style = "position: relative; width: 100%; height: 100%",
-                     tmapOutput("tmap_by_dataset", height = "100%"),
+                     uiOutput("tmap_wrapper"),
                      
                      # Overlayed search input
                      div(
@@ -278,7 +279,7 @@ ui <- navbarPage(
               padding: 10px;
               height: 300px;
             ",
-            uiOutput("summary_stats")
+            withSpinner(uiOutput("summary_stats"), type = 7, color = "lightblue")
           ),
           
           # RIGHT: NA Value Boxes
@@ -292,7 +293,7 @@ ui <- navbarPage(
                 border: 1px double black;
                 height: 300px;
               ",
-              uiOutput("na_values")
+              withSpinner(uiOutput("na_values"), type = 7, color = "lightblue")
             )
           )
         )
