@@ -80,7 +80,7 @@ actual_shortage_tmap <- function(){
     )
   
   # Return tmap.
-  actual_shortage_tmap
+  return(actual_shortage_tmap)
 }
 
 # ---------- ---------- ---------- ---------- ---------- ---------- -----
@@ -133,7 +133,7 @@ monthly_outlook_tmap <- function(){
     )
   
   # Return tmap.
-  monthly_tmap
+  return(monthly_tmap)
 }
 
 # ---------- ---------- ---------- ---------- ---------- ---------- -----
@@ -186,7 +186,7 @@ five_year_outlook_tmap <- function(){
     )
   
   # Return tmap.
-  five_year_tmap
+  return(five_year_tmap)
 }
 
 # ---------- ---------- ---------- ---------- ---------- ---------- -----
@@ -247,5 +247,5 @@ historical_production_tmap <- function(){
       )
   
   # Return tmap.
-  historical_tmap
+  return(historical_tmap)
 }
