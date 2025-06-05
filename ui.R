@@ -16,61 +16,76 @@ ui <- navbarPage(
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #                               Home Tab                                    ----
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
   tabPanel(
     title = "Home",
-    div(
-      style = "
-      height: 100vh;
-      width: 100vw;
-      background-image: url('images/2022_11_18_FL_0440_Folsom_Lake.jpg');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 10vh;
-      text-align: center;
-      color: #ffffff;
-      padding-left: 20px;
-      padding-right: 20px;
-      position: relative;
-    ",
-      
-      # Main transparent text box
-      div(
-        style = "
+    
+    tags$head(
+      tags$style(HTML("
+      .home-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('images/2022_11_18_FL_0440_Folsom_Lake.jpg');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15vh;
+        box-sizing: border-box;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .home-textbox {
         background-color: rgba(0, 0, 0, 0.5);
         padding: 30px 40px;
         border-radius: 12px;
         max-width: 800px;
         box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-      ",
-        
+        text-align: center;
+        color: white;
+      }
+    "))
+    ),
+    
+    div(
+      class = "home-wrapper",
+      
+      # Welcome box
+      div(
+        class = "home-textbox",
         h1("Welcome to the Urban Water Dashboard", 
            style = "font-size: 3em; font-weight: bold; margin-bottom: 20px;"),
-        
-        p("This dashboard is designed to make it easy for anyone to interact with urban water management data without any spreadsheets or coding! Use this dashboard to view information on water shortage levels, water production and delivery, and forecasted water supply and use. ", 
+        p("This dashboard is designed to make it easy for anyone to interact with urban water management data without any spreadsheets or coding! Use this dashboard to view information on water shortage levels, water production and delivery, and forecasted water supply and use.", 
           style = "font-size: 1.5em; margin: 0;")
       ),
       
-      # Image credit at bottom
+      # Bottom centered credit using only inline HTML styling
       div(
-        "Image credit to the California Department of Water Resources",
-        includeMarkdown("text/home_end.Rmd"),
         style = "
-        position: absolute;
-        bottom: 10px;
-        font-size: 0.8em;
-        color: #eeeeee;
-        background-color: rgba(0, 0, 0, 0.4);
-        padding: 4px 10px;
-        border-radius: 6px;
-      "
+    width: 100%; 
+    text-align: center; 
+    margin-bottom: 10px;
+    background-color: rgba(0, 0, 0, 0.4); 
+    padding: 6px 10px;
+    color: #eeeeee;
+    font-size: 0.8em;
+    border-radius: 6px;
+  ",
+        HTML("Image credit to the California Department of Water Resources"),
+        includeMarkdown("text/home_end.Rmd")
       )
+      
     )
-  ) ,
+  )
+  
+  
+  
+  ,
   # # END of Home Tab
   # 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -375,19 +390,23 @@ ui <- navbarPage(
         h2(tags$strong("Learn More About the Urban Water Data Dashboard"), style = "font-size: 35px"),
         
         column(7, includeMarkdown("text/about_intro.Rmd")),
+               
         
-        column(5, style = "border: 1px double black; background-color:#C2E0FF;",
+        column(5, style = "border: 1px double black; background-color:#C2E0FF; margin-top: 60px;",
                includeMarkdown("text/about_box.Rmd")),
         
-        fluidRow(column(12, includeMarkdown("text/about_text.Rmd"))),
+        fluidRow(column(12, style = "margin-bottom: 10px;",
+                        includeMarkdown("text/about_data_text.Rmd"))),
         
         fluidRow(
           column(6, style = "border: 1px double black; background-color:#C2E0FF;",
                  includeMarkdown("text/about_limitations.Rmd")),
-          column(6, includeMarkdown("text/about_CWDC.Rmd"))
+          column(6, style = "margin-top: 40px;",
+                 includeMarkdown("text/about_CWDC.Rmd"))
         ),
         
-        fluidRow(column(12, includeMarkdown("text/about_end.Rmd")))
+        fluidRow(column(12, style = "margin-top: 30px;",
+                        includeMarkdown("text/about_end.Rmd")))
       )
     )
   )
