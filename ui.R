@@ -305,32 +305,32 @@ ui <- navbarPage(
       useShinyjs(),
       h2(tags$strong("Learn How to Use This Dashboard!"), style = "font-size: 35px;"),
       
-      fluidRow(column(12, includeMarkdown("text/tutorial_intro.Rmd"),
+      fluidRow(column(12, includeMarkdown("text/tutorial_page/tutorial_intro.Rmd"),
                       HTML('<img src="images/dashboard_overview.png" width="900">'),
                       style = "margin-bottom: 10px;")),
       
-      fluidRow(column(12, includeMarkdown("text/tutorial_overview.Rmd"),
+      fluidRow(column(12, includeMarkdown("text/tutorial_page/tutorial_overview.Rmd"),
                       style = "margin-bottom: 70px;")),
       
       fluidRow(column(12, HTML('<img src="images/select_dataset.png" width="900">'),
-                      includeMarkdown("text/tutorial_dataset_select.Rmd"),
+                      includeMarkdown("text/tutorial_page/tutorial_dataset_select.Rmd"),
                        style = "margin-bottom: 70px;")),
       
-      fluidRow(column(12, includeMarkdown("text/tutorial_dataset_explanation.Rmd")), style = "background-color: #D1E2F0; margin-bottom: 70px;"),
+      fluidRow(column(12, includeMarkdown("text/tutorial_page/tutorial_dataset_explanation.Rmd")), style = "background-color: #D1E2F0; margin-bottom: 70px;"),
       
       fluidRow(column(12, HTML('<img src="images/select_dates.png" width="900">'),
-                      includeMarkdown("text/tutorial_date_select.Rmd"),
+                      includeMarkdown("text/tutorial_page/tutorial_date_select.Rmd"),
                       style = "margin-bottom: 70px;")),
       
       fluidRow(column(12, HTML('<img src="images/select_district.png" width="900">'),
-                      includeMarkdown("text/tutorial_district_select.Rmd"),
+                      includeMarkdown("text/tutorial_page/tutorial_district_select.Rmd"),
                       style = "margin-bottom: 70px;")),
       
       fluidRow(column(12, HTML('<img src="images/select_district_map.png" width="600">'),
-                      includeMarkdown("text/tutorial_district_select_map.Rmd"),
+                      includeMarkdown("text/tutorial_page/tutorial_district_select_map.Rmd"),
                       style = "margin-bottom: 70px;")),
       fluidRow(column(12, HTML('<img src="images/widget_one.png" width="900">'),
-                      includeMarkdown("text/tutorial_widget_one.Rmd")),
+                      includeMarkdown("text/tutorial_page/tutorial_widget_one.Rmd")),
                style = "margin-bottom: 20px;"),
       
       # START of optional toggle section
@@ -340,40 +340,40 @@ ui <- navbarPage(
       hidden(
         div(id = "historical_section",
             fluidRow(column(12, HTML('<img src="images/widget_one_historical_selector.png" width="500">'),
-                            includeMarkdown("text/tutorial_widget_one_hist.Rmd"),
+                            includeMarkdown("text/tutorial_page/tutorial_widget_one_hist.Rmd"),
                             style = "margin-bottom: 70px;")),
             
             fluidRow(column(12, HTML('<img src="images/widget_one_hist_del.png" width="500">'),
-                            includeMarkdown("text/tutorial_widget_one_hist_del.Rmd"), style = "margin-bottom: 70px;")),
+                            includeMarkdown("text/tutorial_page/tutorial_widget_one_hist_del.Rmd"), style = "margin-bottom: 70px;")),
             
             
             fluidRow(column(12, HTML('<img src="images/widget_one_hist_prod.png" width="500">'),
-                            includeMarkdown("text/tutorial_widget_one_hist_prod.Rmd"),  style = "margin-bottom: 70px;")),
+                            includeMarkdown("text/tutorial_page/tutorial_widget_one_hist_prod.Rmd"),  style = "margin-bottom: 70px;")),
             
             
             fluidRow(column(12, HTML('<img src="images/widget_one_hist_total.png" width="500">'),
-                            includeMarkdown("text/tutorial_widget_one_hist_total.Rmd"),
+                            includeMarkdown("text/tutorial_page/tutorial_widget_one_hist_total.Rmd"),
                             style = "margin-bottom: 70px;")))
       ),
       
       
       fluidRow(column(12, HTML('<img src="images/widget_two.png" width="900">'),
-                      includeMarkdown("text/tutorial_widget_two.Rmd"),
+                      includeMarkdown("text/tutorial_page/tutorial_widget_two.Rmd"),
                       style = "margin-bottom: 70px;"))
     ),
     
     
     fluidRow(column(12, HTML('<img src="images/widget_three.png" width="900">'),
-                    includeMarkdown("text/tutorial_widget_three.Rmd"),
+                    includeMarkdown("text/tutorial_page/tutorial_widget_three.Rmd"),
                     style = "margin-bottom: 70px;")),
     
     
     fluidRow(column(12, HTML('<img src="images/widget_four.png" width="900">'),
-                    includeMarkdown("text/tutorial_widget_four.Rmd"),
+                    includeMarkdown("text/tutorial_page/tutorial_widget_four.Rmd"),
                     style = "margin-bottom: 70px;")),
     
     
-    fluidRow(column(12, includeMarkdown("text/tutorial_end.Rmd")))
+    fluidRow(column(12, includeMarkdown("text/tutorial_page/tutorial_end.Rmd")))
   ),
   # END of Tutorial Tab
   
@@ -390,24 +390,24 @@ ui <- navbarPage(
         width = NULL,
         h2(tags$strong("Learn More About the Urban Water Data Dashboard"), style = "font-size: 35px"),
         
-        column(7, includeMarkdown("text/about_intro.Rmd")),
+        column(7, includeMarkdown("text/about_page/about_intro.Rmd")),
                
         
         column(5, style = "border: 1px double black; background-color:#C2E0FF; margin-top: 60px;",
-               includeMarkdown("text/about_box.Rmd")),
+               includeMarkdown("text/about_page/about_box.Rmd")),
         
         fluidRow(column(12, style = "margin-bottom: 10px;",
-                        includeMarkdown("text/about_data_text.Rmd"))),
+                        includeMarkdown("text/about_page/about_data_text.Rmd"))),
         
         fluidRow(
           column(6, style = "border: 1px double black; background-color:#C2E0FF;",
-                 includeMarkdown("text/about_limitations.Rmd")),
+                 includeMarkdown("text/about_page/about_limitations.Rmd")),
           column(6, style = "margin-top: 40px;",
-                 includeMarkdown("text/about_CWDC.Rmd"))
+                 includeMarkdown("text/about_page/about_CWDC.Rmd"))
         ),
         
         fluidRow(column(12, style = "margin-top: 30px;",
-                        includeMarkdown("text/about_end.Rmd")))
+                        includeMarkdown("text/about_page/about_end.Rmd")))
       )
     )
   )

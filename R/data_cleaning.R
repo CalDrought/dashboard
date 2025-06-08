@@ -45,7 +45,8 @@ load_water_data <- function() {
     select(-c(id))
   
   # Cleaning the supplier names for each of our main datasets.
-  historical_clean <- clean_supplier_name(historical_production, "water_system_name")
+  historical_clean <- clean_supplier_name(historical_production, "water_system_name") |> 
+    mutate(supplier_name = water_system_name)
   fiveyr_clean <- clean_supplier_name(five_year_outlook, "supplier_name")
   monthly_clean <- clean_supplier_name(monthly_water_outlook, "supplier_name")
   actual_clean <- clean_supplier_name(actual_shortage, "supplier_name")
