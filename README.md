@@ -3,7 +3,7 @@
 
 [Link to Shiny App](https://shinyapps.bren.ucsb.edu/CalDrought/)
 
-![](https://github.com/user-attachments/assets/36d0cc38-f028-4aca-b189-975405e8d2a3)
+![](https://github.com/CalDrought/dashboard/blob/main/www/images/dashboard_overview.png)
 
 
 **Authors include:** Tom Gibbens-Matsuyama, Emma Bea Mitchell, Karol Paya, Takeen Shamloo
