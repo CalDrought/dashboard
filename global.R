@@ -178,7 +178,7 @@ if (!needs_refresh && file.exists(cache_rds)) {
   message("Rebuilding cache (changed items: ",
           paste(updates_df$item[updates_df$updated], collapse = ", "), ")")
   message("Updating snapshot of manifest inside cache file.")
-  print(dplyr::select(updates_df, item, current_ts))
+  print(dplyr::select(updates_df, item, prev_ts, current_ts, updated))
   
   # ---------- Re-build Everything ----------
   water_data <- load_water_data()
